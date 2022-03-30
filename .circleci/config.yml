@@ -24,6 +24,8 @@ jobs:
       - image: cimg/python:3.6
     steps:
       - checkout
+      - run: pwd
+      - run: ls
       - aws-s3/sync:
           from: dist
           to: s3://todo-gin.ml
