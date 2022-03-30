@@ -1,0 +1,32 @@
+version: 2.1
+
+orbs:
+  cloudfront-s3-deploy: trustedshops-public/cloudfront-s3-deploy@2.1.0
+
+jobs:
+  build_and_test:
+    docker:
+      - image: node:14
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+           - yarn-packages-{{ checksum "yarn.lock" }}
+      - run: yarn install
+      - save_cache:
+          paths:
+            - ~/.cache/yarn
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+      - run: yarn test
+      - run: yarn generate
+
+workflows:
+  test_and_deploy:
+    jobs:
+      - build_and_test
+      - cloudfront-s3-deploy/sync-and-invalidate:
+          requires:
+            - build_and_test
+          filters:
+            branches:
+              only: master
