@@ -24,7 +24,10 @@ jobs:
       - image: cimg/python:3.6
     steps:
       - checkout
-      - aws-s3/sync
+      - aws-s3/sync:
+          arguments:
+            from: dist
+            to: s3://todo-gin.ml
       - run: aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths '/*'
 
 workflows:
