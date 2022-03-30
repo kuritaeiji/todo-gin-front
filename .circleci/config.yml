@@ -19,13 +19,16 @@ jobs:
           key: yarn-packages-{{ checksum "yarn.lock" }}
       - run: yarn test
       - run: yarn generate
+      - persist_to_workspace:
+          root: ~/project
+          paths:
+            - dist
   deploy:
     docker:
       - image: cimg/python:3.6
     steps:
-      - checkout
-      - run: pwd
-      - run: ls
+      - attach_workspace:
+          at: ~/project
       - aws-s3/sync:
           from: dist
           to: s3://todo-gin.ml
