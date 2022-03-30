@@ -27,7 +27,7 @@ jobs:
       - aws-s3/sync:
           arguments:
             from: dist
-            to: s3://todo-gin.ml
+            to: 's3://todo-gin.ml'
       - run: aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths '/*'
 
 workflows:
