@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  cloudfront-s3-deploy: trustedshops-public/cloudfront-s3-deploy@2.1.0
+  aws-s3: circleci/aws-s3@1.0.15
 
 jobs:
   build_and_test:
@@ -19,14 +19,15 @@ jobs:
           key: yarn-packages-{{ checksum "yarn.lock" }}
       - run: yarn test
       - run: yarn generate
+  deploy:
+    docker:
+      - image: cimg/python:3.6
+    steps:
+      - checkout
+      - aws-s3/sync
+      - run: aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths '/*'
 
 workflows:
   test_and_deploy:
     jobs:
       - build_and_test
-      - cloudfront-s3-deploy/sync-and-invalidate:
-          requires:
-            - build_and_test
-          filters:
-            branches:
-              only: master
