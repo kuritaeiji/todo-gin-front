@@ -23,7 +23,7 @@ export default {
   data () {
     return {
       btns: [
-        { name: 'login', to: '/login' },
+        { name: 'login', to: '' },
         { name: 'signup', to: '/signup' }
       ]
     }
