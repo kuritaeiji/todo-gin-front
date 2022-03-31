@@ -3,7 +3,7 @@
     <v-row justify="center" class="pt-100">
       <v-card flat width="80%" max-width="400" class="pa-5">
         <v-card-title class="justify-center font-weight-bold mb-3">
-          {{ $t('page.login') }}
+          {{ title }}
         </v-card-title>
 
         <v-form>
@@ -20,7 +20,7 @@
             :label="$t('model.user.password')"
             :type="passwordField.type"
             :append-icon="passwordField.icon"
-            @click:append="togglePassword"
+            @click:append="toggleIsShowPassword"
           />
 
           <v-btn
@@ -44,6 +44,7 @@ export default {
   layout: 'beforeLoggedIn',
   data () {
     return {
+      title: this.$t('page.index'),
       auth: {
         email: '',
         password: ''
@@ -53,7 +54,7 @@ export default {
   },
   head () {
     return {
-      title: this.$t('page.login')
+      title: this.title
     }
   },
   computed: {
@@ -62,9 +63,10 @@ export default {
     }
   },
   methods: {
-    togglePassword () {
+    toggleIsShowPassword () {
       this.isShowPassword = !this.isShowPassword
-    }
+    },
+    login () {}
   }
 }
 </script>
