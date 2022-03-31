@@ -32,7 +32,13 @@ export default {
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
+    '~/plugins/handler.js',
+    '~/plugins/auth.js'
   ],
+
+  router: {
+    middleware: ['clearValidation']
+  },
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
@@ -55,7 +61,7 @@ export default {
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
     // Workaround to avoid enforcing hard-coded localhost:3000: https://github.com/nuxt-community/axios-module/issues/308
-    baseURL: '/'
+    baseURL: process.env.NODE_ENV === 'production' ? 'https://todo-gin-back.herokuapp.com/api' : 'http://localhost:8080/api'
   },
 
   i18n: {
@@ -82,5 +88,10 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
+    extend (config, { isDev }) {
+      if (isDev) {
+        config.devtool = 'source-map'
+      }
+    }
   }
 }

@@ -12,5 +12,11 @@
   },
   "btn": {
     "submit": "送信する"
+  },
+  "error": {
+    "login": {
+      "record not found": "ユーザーが見つかりません",
+      "password is not authenticated": "パスワードが間違っています"
+    }
   }
 }

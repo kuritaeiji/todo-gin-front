@@ -7,11 +7,14 @@
         </v-card-title>
 
         <v-form>
+          <validation />
+
           <v-text-field
             v-model="auth.email"
             outlined
             type="email"
             :label="$t('model.user.email')"
+            @keyup.enter="login"
           />
 
           <v-text-field
@@ -21,6 +24,7 @@
             :type="passwordField.type"
             :append-icon="passwordField.icon"
             @click:append="toggleIsShowPassword"
+            @keyup.enter="login"
           />
 
           <v-btn
@@ -29,7 +33,7 @@
             block
             color="primary"
             class="font-weight-bold my-5"
-            @click.stop="login"
+            @click="login"
           >
             {{ $t('btn.submit') }}
           </v-btn>
@@ -66,7 +70,9 @@ export default {
     toggleIsShowPassword () {
       this.isShowPassword = !this.isShowPassword
     },
-    login () {}
+    login () {
+      this.$auth.login(this.auth)
+    }
   }
 }
 </script>
