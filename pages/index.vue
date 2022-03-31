@@ -51,6 +51,11 @@ export default {
       isShowPassword: false
     }
   },
+  head () {
+    return {
+      title: this.$t('page.login')
+    }
+  },
   computed: {
     passwordField () {
       return this.isShowPassword ? { icon: 'mdi-eye', type: 'text' } : { icon: 'mdi-eye-off', type: 'password' }
