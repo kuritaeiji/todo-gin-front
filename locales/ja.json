@@ -19,5 +19,9 @@
       "record not found": "ユーザーが見つかりません",
       "password is not authenticated": "パスワードが間違っています"
     }
+  },
+  "flash": {
+    "authMiddleware": "ログインして下さい",
+    "guestMiddleware": "既にログイン済みです"
   }
 }

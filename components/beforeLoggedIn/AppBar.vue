@@ -1,10 +1,10 @@
 <template>
   <v-app-bar app absolute flat color="white">
-    <v-app-bar-title class="font-weight-bold">
+    <v-toolbar-title class="font-weight-bold">
       <nuxt-link to="/" class="text-decoration-none black--text">
         {{ $t('appTitle') }}
       </nuxt-link>
-    </v-app-bar-title>
+    </v-toolbar-title>
 
     <v-spacer />
 

@@ -37,7 +37,7 @@ export default {
   ],
 
   router: {
-    middleware: ['clearValidation']
+    middleware: ['clearValidation', 'clearFlash']
   },
 
   // Auto import components: https://go.nuxtjs.dev/config-components
