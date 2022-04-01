@@ -8,3 +8,4 @@ config.mocks.$t = i18nMock
 const authMock = { login () {} }
 config.mocks.$auth = authMock
 config.stubs['router-link'] = RouterLinkStub
+config.stubs['nuxt-link'] = RouterLinkStub

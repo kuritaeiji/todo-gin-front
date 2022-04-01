@@ -1,9 +1,9 @@
 import Vuetify from 'vuetify'
 import { mount } from '@vue/test-utils'
-import page from '~/pages/index.vue'
+import page from '~/pages/login.vue'
 import localVue from '~/test/localVue'
 
-describe('index.vue', () => {
+describe('pages/login.vue', () => {
   let vuetify
   let mock
 
@@ -79,7 +79,7 @@ describe('index.vue', () => {
   describe('script', () => {
     it('title', () => {
       const wrapper = mountPage()
-      expect(wrapper.vm.$metaInfo.title).toEqual('page.index')
+      expect(wrapper.vm.$metaInfo.title).toEqual('page.login')
     })
 
     describe('computed', () => {
