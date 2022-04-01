@@ -1,4 +1,4 @@
-const defaultValidation = {
+export const defaultValidation = {
   isShow: false,
   text: ''
 }
