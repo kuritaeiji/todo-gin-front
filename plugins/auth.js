@@ -1,6 +1,6 @@
 import { isRecordNotFoundError, isPasswordAuthenticationError } from '~/errors'
 
-class Auth {
+export class Auth {
   constructor ({ $axios, store, app }) {
     this.$axios = $axios
     this.store = store
