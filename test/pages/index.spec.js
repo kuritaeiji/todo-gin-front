@@ -5,16 +5,19 @@ import localVue from '~/test/localVue'
 
 describe('index.vue', () => {
   let vuetify
+  let mock
 
   beforeEach(() => {
     vuetify = new Vuetify()
+    mock = jest.fn()
   })
 
-  const mountPage = (callback) => {
-    if (callback) { callback() }
+  const mountPage = (options = {}) => {
     return mount(page, {
       localVue,
-      vuetify
+      vuetify,
+      stubs: ['validation'],
+      ...options
     })
   }
 
@@ -34,19 +37,37 @@ describe('index.vue', () => {
         expect(wrapper.vm.auth.password).toEqual(password)
       })
 
-      it('ボタンクリックでログインメソッドが呼ばれる', () => {
-        const mock = jest.fn()
-        const wrapper = mountPage(() => {
-          page.methods.login = mock
+      describe('ログインメソッド', () => {
+        let wrapper
+        beforeEach(() => {
+          wrapper = mountPage({
+            methods: {
+              login: mock
+            }
+          })
         })
-        wrapper.find('.v-btn.primary').trigger('click')
-        expect(mock).toHaveBeenCalled()
+
+        it('ボタンクリックすると発火', () => {
+          wrapper.findComponent({ name: 'v-btn' }).vm.$emit('click')
+          expect(mock).toHaveBeenCalled()
+        })
+
+        it('メールフォームでエンターキーを押すと発火', () => {
+          wrapper.find('input[type="email"]').trigger('keyup.enter')
+          expect(mock).toHaveBeenCalled()
+        })
+
+        it('パスワードフォームでエンターキーを押すと発火', () => {
+          wrapper.find('input[type="password"]').trigger('keyup.enter')
+          expect(mock).toHaveBeenCalled()
+        })
       })
 
       it('パスワードフィールドのアイコンをクリックするとtoggleIsShowPasswordが呼ばれる', () => {
-        const mock = jest.fn()
-        const wrapper = mountPage(() => {
-          page.methods.toggleIsShowPassword = mock
+        const wrapper = mountPage({
+          methods: {
+            toggleIsShowPassword: mock
+          }
         })
         const passField = wrapper.findAllComponents({ name: 'v-text-field' }).at(1)
         passField.vm.$emit('click:append')
@@ -67,6 +88,24 @@ describe('index.vue', () => {
         expect(page.computed.passwordField.call(self)).toEqual({ icon: 'mdi-eye', type: 'text' })
         self.isShowPassword = false
         expect(page.computed.passwordField.call(self)).toEqual({ icon: 'mdi-eye-off', type: 'password' })
+      })
+    })
+
+    describe('methods', () => {
+      it('login', () => {
+        const $auth = { login: mock }
+        const wrapper = mountPage({ mocks: { $auth } })
+        wrapper.vm.login()
+
+        expect(mock).toHaveBeenCalledWith(wrapper.vm.auth)
+      })
+
+      it('toggleIsShowPassword', () => {
+        const wrapper = mountPage()
+        wrapper.vm.toggleIsShowPassword()
+        expect(wrapper.vm.isShowPassword).toEqual(true)
+        wrapper.vm.toggleIsShowPassword()
+        expect(wrapper.vm.isShowPassword).toEqual(false)
       })
     })
   })

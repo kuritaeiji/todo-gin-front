@@ -71,6 +71,7 @@ export default {
       this.isShowPassword = !this.isShowPassword
     },
     login () {
+      console.log('roguin')
       this.$auth.login(this.auth)
     }
   }
