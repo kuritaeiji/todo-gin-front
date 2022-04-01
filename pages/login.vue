@@ -46,6 +46,7 @@
 <script>
 export default {
   layout: 'beforeLoggedIn',
+  middleware: 'guest',
   data () {
     return {
       title: this.$t('page.login'),

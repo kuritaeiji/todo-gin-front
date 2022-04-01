@@ -1,10 +1,12 @@
 <template>
-  <div></div>
+  <div />
 </template>
 
 <script>
 export default {
-  layout: 'beforeLoggedIn',
+  layout ({ app }) {
+    return app.$auth.loggedIn ? 'default' : 'toppage'
+  },
   head () {
     return {
       title: this.$t('page.index')
