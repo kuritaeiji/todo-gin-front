@@ -10,6 +10,10 @@ export class Auth {
     this.tokenType = 'Bearer '
   }
 
+  get loggedIn () {
+    return this.store.getters['auth/loggedIn']
+  }
+
   async login (authParams) {
     try {
       const response = await this.$axios.$post('/login', authParams)
@@ -17,6 +21,10 @@ export class Auth {
     } catch (error) {
       this._loginReject(error)
     }
+  }
+
+  hasJwt () {
+    return !!this.storage.getItem(this.accessTokenKey)
   }
 
   _loginResolve (response) {

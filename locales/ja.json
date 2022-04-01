@@ -1,7 +1,8 @@
 {
   "appTitle": "Todo-Gin",
   "page": {
-    "index": "ログイン",
+    "index": "Todo-Gin",
+    "login": "ログイン",
     "signup": "会員登録"
   },
   "model": {
