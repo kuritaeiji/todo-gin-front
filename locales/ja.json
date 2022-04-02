@@ -24,6 +24,7 @@
   },
   "flash": {
     "authMiddleware": "ログインして下さい",
-    "guestMiddleware": "既にログイン済みです"
+    "guestMiddleware": "既にログイン済みです",
+    "logout": "ログアウトしました"
   }
 }

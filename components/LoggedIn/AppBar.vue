@@ -15,7 +15,9 @@
 <script>
 export default {
   methods: {
-    logout () {},
+    logout () {
+      this.$auth.logout(this)
+    },
     withdraw () {}
   }
 }

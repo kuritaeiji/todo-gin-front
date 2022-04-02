@@ -45,4 +45,21 @@ describe('component/LoggedInAppBar.vue', () => {
       expect(mock).toHaveBeenCalled()
     })
   })
+
+  describe('script', () => {
+    describe('methods', () => {
+      it('logoutメソッド', () => {
+        const mock = jest.fn()
+        const wrapper = mountAppBar({
+          mocks: {
+            $auth: {
+              logout: mock
+            }
+          }
+        })
+        wrapper.vm.logout()
+        expect(mock).toHaveBeenCalledWith(wrapper.vm)
+      })
+    })
+  })
 })

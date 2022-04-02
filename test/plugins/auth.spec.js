@@ -14,18 +14,20 @@ describe('plugins/Auth', () => {
       expect($axios.$post).toHaveBeenCalledWith('/login', authParams)
     })
 
-    it('ログインに成功するとlocalstorageにBearerトークンを保存し、authstoreのloggedInステートをtrueにする', async () => {
+    it('ログインに成功するとlocalstorageにBearerトークンを保存し、authstoreのloggedInステートをtrueにし、indexパスにリダイレクトする', async () => {
       const response = { token: 'token' }
       const $axios = {
         $post () { return new Promise(resolve => resolve(response)) }
       }
       const store = { dispatch: jest.fn() }
-      const auth = new Auth({ $axios, store, app: 'app' })
+      const redirect = jest.fn()
+      const auth = new Auth({ $axios, store, redirect })
       auth.storage = { setItem: jest.fn() }
 
       await auth.login(authParams)
       expect(auth.storage.setItem).toHaveBeenCalledWith(auth.accessTokenKey, auth.tokenType + response.token)
       expect(store.dispatch).toHaveBeenCalledWith('auth/setLoggedIn', true)
+      expect(redirect).toHaveBeenCalledWith({ name: 'index' })
     })
 
     it('ログインが失敗し、ユーザーが見つからなかった場合バリデーションを作成する', async () => {
@@ -58,6 +60,87 @@ describe('plugins/Auth', () => {
       await auth.login(authParams)
 
       expect(app.$handler.standardAxiosError).toHaveBeenCalledWith(error)
+    })
+  })
+
+  describe('logoutメソッド', () => {
+    const app = { i18n: { t: key => key } }
+    let storage
+    let store
+    let redirect
+    let vue
+    beforeEach(() => {
+      storage = { removeItem: jest.fn() }
+      store = { dispatch: jest.fn() }
+      redirect = jest.fn()
+      vue = {
+        $nuxt: {
+          setLayout: jest.fn()
+        }
+      }
+    })
+
+    describe('遷移元のpathがindexでない場合', () => {
+      const route = { name: 'not-index' }
+      let auth
+      beforeEach(() => {
+        auth = new Auth({ store, app, redirect, route })
+        auth.storage = storage
+      })
+
+      it('localstorageのjwtを削除', () => {
+        auth.logout(vue)
+        expect(auth.storage.removeItem).toHaveBeenCalledWith(auth.accessTokenKey)
+      })
+
+      it('storeのloggedInをfalseにする', () => {
+        auth.logout(vue)
+        expect(auth.store.dispatch).toHaveBeenNthCalledWith(1, 'auth/setLoggedIn', false)
+      })
+
+      it('flashMessageを作成する', () => {
+        auth.logout(vue)
+        expect(auth.store.dispatch).toHaveBeenNthCalledWith(2, 'flash/setFlash', { color: 'info', text: 'flash.logout' })
+      })
+
+      it('indexパスにリダイレクトする', () => {
+        auth.logout(vue)
+        expect(auth.redirect).toHaveBeenCalledWith({ name: 'index' })
+      })
+
+      it('レイアウトをtoppageにしない', () => {
+        auth.logout(vue)
+        expect(vue.$nuxt.setLayout).not.toHaveBeenCalled()
+      })
+
+      it('flashメッセージのtransitionカウントを+しない', () => {
+        auth.logout(vue)
+        expect(auth.store.dispatch).toHaveBeenCalledTimes(2)
+      })
+    })
+
+    describe('遷移元のpathがindexである場合', () => {
+      const route = { name: 'index' }
+      let auth
+      beforeEach(() => {
+        auth = new Auth({ store, app, redirect, route })
+        auth.storage = storage
+      })
+
+      it('レイアウトをtoppageにする', () => {
+        auth.logout(vue)
+        expect(vue.$nuxt.setLayout).toHaveBeenCalledWith('toppage')
+      })
+
+      it('flashメッセージのtransitionCountを+する', () => {
+        auth.logout(vue)
+        expect(auth.store.dispatch).toHaveBeenNthCalledWith(3, 'flash/countUpFlash')
+      })
+
+      it('indexパスにリダイレクトしない', () => {
+        auth.logout(vue)
+        expect(auth.redirect).not.toHaveBeenCalled()
+      })
     })
   })
 })
