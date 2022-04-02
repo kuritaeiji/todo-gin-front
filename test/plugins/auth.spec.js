@@ -197,4 +197,57 @@ describe('plugins/Auth', () => {
       })
     })
   })
+
+  describe('guestMiddlewareメソッド', () => {
+    let store
+    let redirect
+    let auth
+    const app = { i18n: { t: key => key } }
+    const from = { name: 'not-index' }
+    beforeEach(() => {
+      store = {
+        dispatch: jest.fn(),
+        getters: {
+          'auth/loggedIn': true
+        }
+      }
+      redirect = jest.fn()
+      auth = new Auth({ store, redirect, app })
+    })
+
+    describe('ログインしている場合', () => {
+      it('フラッシュメッセージを作成する', () => {
+        auth.guestMiddleware({ from })
+        expect(store.dispatch).toHaveBeenNthCalledWith(1, 'flash/setFlash', { text: 'flash.guestMiddleware', color: 'red' })
+      })
+
+      it('indexパスにリダイレクト', () => {
+        auth.guestMiddleware({ from })
+        expect(redirect).toHaveBeenCalledWith({ name: 'index' })
+      })
+
+      describe('遷移元がindexパスの場合', () => {
+        it('flashのcountを+する', () => {
+          auth.guestMiddleware({ from: { name: 'index' } })
+          expect(store.dispatch).toHaveBeenNthCalledWith(2, 'flash/countUpFlash')
+        })
+      })
+
+      describe('遷移元がindexパス以外の場合', () => {
+        it('flashのcountを+しない', () => {
+          auth.guestMiddleware({ from })
+          expect(store.dispatch).toHaveBeenCalledTimes(1)
+        })
+      })
+    })
+
+    describe('ログインしていない場合', () => {
+      it('何もしない', () => {
+        store.getters['auth/loggedIn'] = false
+        auth.guestMiddleware({ from })
+        expect(store.dispatch).not.toHaveBeenCalled()
+        expect(redirect).not.toHaveBeenCalled()
+      })
+    })
+  })
 })
