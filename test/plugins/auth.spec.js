@@ -143,4 +143,58 @@ describe('plugins/Auth', () => {
       })
     })
   })
+
+  describe('authMiddlewareメソッド', () => {
+    let store
+    let redirect
+    let auth
+    const app = { i18n: { t: key => key } }
+    beforeEach(() => {
+      store = { dispatch: jest.fn(), getters: { 'auth/loggedIn': true } }
+      redirect = jest.fn()
+      auth = new Auth({ store, redirect, app })
+    })
+
+    describe('ログインしている場合', () => {
+      it('何もしない', () => {
+        auth.authMiddleware({})
+        expect(store.dispatch).not.toHaveBeenCalled()
+        expect(redirect).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('ログインしていない場合', () => {
+      beforeEach(() => {
+        store.getters['auth/loggedIn'] = false
+      })
+
+      let from = { name: 'login' }
+
+      it('フラッシュメッセージを作成する', () => {
+        auth.authMiddleware({ from })
+        expect(store.dispatch).toHaveBeenNthCalledWith(1, 'flash/setFlash', { text: 'flash.authMiddleware', color: 'red' })
+      })
+
+      it('ログインパスにリダイレクトする', () => {
+        auth.authMiddleware({ from })
+        expect(redirect).toHaveBeenCalledWith({ name: 'login' })
+      })
+
+      describe('遷移元のパスがloginパスの場合', () => {
+        it('flashメッセージのtransitionCountを+する', () => {
+          from = { name: 'login' }
+          auth.authMiddleware({ from })
+          expect(store.dispatch).toHaveBeenNthCalledWith(2, 'flash/countUpFlash')
+        })
+      })
+
+      describe('遷移元のパスがloginパスでない場合', () => {
+        it('flashメッセージのtransitionCountを+しない', () => {
+          from = { name: 'not-login' }
+          auth.authMiddleware({ from })
+          expect(store.dispatch).toHaveBeenCalledTimes(1)
+        })
+      })
+    })
+  })
 })

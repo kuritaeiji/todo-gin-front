@@ -40,6 +40,16 @@ export class Auth {
     this.redirect({ name: 'index' })
   }
 
+  authMiddleware ({ from }) {
+    if (!this.loggedIn) {
+      this.store.dispatch('flash/setFlash', { text: this.app.i18n.t('flash.authMiddleware'), color: 'red' })
+      this.redirect({ name: 'login' })
+      if (from.name === 'login') {
+        this.store.dispatch('flash/countUpFlash')
+      }
+    }
+  }
+
   hasJwt () {
     return !!this.storage.getItem(this.accessTokenKey)
   }
