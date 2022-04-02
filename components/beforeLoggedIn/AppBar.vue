@@ -1,23 +1,15 @@
 <template>
-  <v-app-bar app absolute flat color="white">
-    <v-toolbar-title class="font-weight-bold">
-      <nuxt-link to="/" class="text-decoration-none black--text">
-        {{ $t('appTitle') }}
-      </nuxt-link>
-    </v-toolbar-title>
-
-    <v-spacer />
-
-    <v-btn
-      v-for="btn in btns"
-      :key="`${btn.name}-btn`"
-      text
-      :to="btn.to"
-      class="font-weight-bold"
-    >
-      {{ $t(`page.${btn.name}`) }}
-    </v-btn>
-  </v-app-bar>
+  <app-bar>
+    <template #btns>
+      <ui-app-bar-btn
+        v-for="btn in btns"
+        :key="`${btn.name}-btn`"
+        :to="btn.to"
+      >
+        {{ $t(`page.${btn.name}`) }}
+      </ui-app-bar-btn>
+    </template>
+  </app-bar>
 </template>
 
 <script>

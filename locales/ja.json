@@ -12,7 +12,9 @@
     }
   },
   "btn": {
-    "submit": "送信する"
+    "submit": "送信する",
+    "logout": "ログアウト",
+    "withdraw": "退会する"
   },
   "error": {
     "login": {
