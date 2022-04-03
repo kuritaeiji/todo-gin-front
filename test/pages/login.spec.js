@@ -16,63 +16,18 @@ describe('pages/login.vue', () => {
     return mount(page, {
       localVue,
       vuetify,
-      stubs: ['validation'],
+      stubs: ['before-logged-in-form', 'user-form'],
       ...options
     })
   }
 
   describe('template', () => {
-    describe('フォームの操作', () => {
-      it('emailのデータが反映される', () => {
-        const email = 'test email'
-        const wrapper = mountPage()
-        wrapper.find('input[type="email"]').setValue(email)
-        expect(wrapper.vm.auth.email).toEqual(email)
+    it('submitイベントが起こると、ログインメソッドを呼び出す', () => {
+      const wrapper = mountPage({
+        methods: { login: mock }
       })
-
-      it('passwordのデータが反映される', () => {
-        const password = 'test password'
-        const wrapper = mountPage()
-        wrapper.find('input[type="password"]').setValue(password)
-        expect(wrapper.vm.auth.password).toEqual(password)
-      })
-
-      describe('ログインメソッド', () => {
-        let wrapper
-        beforeEach(() => {
-          wrapper = mountPage({
-            methods: {
-              login: mock
-            }
-          })
-        })
-
-        it('ボタンクリックすると発火', () => {
-          wrapper.findComponent({ name: 'v-btn' }).vm.$emit('click')
-          expect(mock).toHaveBeenCalled()
-        })
-
-        it('メールフォームでエンターキーを押すと発火', () => {
-          wrapper.find('input[type="email"]').trigger('keyup.enter')
-          expect(mock).toHaveBeenCalled()
-        })
-
-        it('パスワードフォームでエンターキーを押すと発火', () => {
-          wrapper.find('input[type="password"]').trigger('keyup.enter')
-          expect(mock).toHaveBeenCalled()
-        })
-      })
-
-      it('パスワードフィールドのアイコンをクリックするとtoggleIsShowPasswordが呼ばれる', () => {
-        const wrapper = mountPage({
-          methods: {
-            toggleIsShowPassword: mock
-          }
-        })
-        const passField = wrapper.findAllComponents({ name: 'v-text-field' }).at(1)
-        passField.vm.$emit('click:append')
-        expect(mock).toHaveBeenCalled()
-      })
+      wrapper.find('user-form-stub').vm.$emit('submit')
+      expect(mock).toHaveBeenCalled()
     })
   })
 
@@ -82,30 +37,13 @@ describe('pages/login.vue', () => {
       expect(wrapper.vm.$metaInfo.title).toEqual('page.login')
     })
 
-    describe('computed', () => {
-      it('passwordField', () => {
-        const self = { isShowPassword: true }
-        expect(page.computed.passwordField.call(self)).toEqual({ icon: 'mdi-eye', type: 'text' })
-        self.isShowPassword = false
-        expect(page.computed.passwordField.call(self)).toEqual({ icon: 'mdi-eye-off', type: 'password' })
-      })
-    })
-
     describe('methods', () => {
       it('login', () => {
         const $auth = { login: mock }
         const wrapper = mountPage({ mocks: { $auth } })
         wrapper.vm.login()
 
-        expect(mock).toHaveBeenCalledWith(wrapper.vm.auth)
-      })
-
-      it('toggleIsShowPassword', () => {
-        const wrapper = mountPage()
-        wrapper.vm.toggleIsShowPassword()
-        expect(wrapper.vm.isShowPassword).toEqual(true)
-        wrapper.vm.toggleIsShowPassword()
-        expect(wrapper.vm.isShowPassword).toEqual(false)
+        expect(mock).toHaveBeenCalledWith(wrapper.vm.params.auth)
       })
     })
   })

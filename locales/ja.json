@@ -22,9 +22,21 @@
       "password is not authenticated": "パスワードが間違っています"
     }
   },
+  "validation": {
+    "standard": "フォームが間違っています"
+  },
   "flash": {
     "authMiddleware": "ログインして下さい",
     "guestMiddleware": "既にログイン済みです",
-    "logout": "ログアウトしました"
+    "logout": "ログアウトしました",
+    "activationEmail": "アカウント有効化メールを送信しました",
+    "activationEmailError": "有効化メールを送信できませんでした"
+  },
+  "form": {
+    "annotation": {
+      "user": {
+        "password": "大文字、小文字、数字の3種類以上かつ8文字以上"
+      }
+    }
   }
 }
