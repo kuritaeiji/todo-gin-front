@@ -30,7 +30,10 @@
     "guestMiddleware": "既にログイン済みです",
     "logout": "ログアウトしました",
     "activationEmail": "アカウント有効化メールを送信しました",
-    "activationEmailError": "有効化メールを送信できませんでした"
+    "activationEmailError": "有効化メールを送信できませんでした",
+    "jwtExpiredError": "トークンの有効期限が切れています",
+    "alreadyActivatedUserError": "既にアカウントは有効化されています",
+    "activateUser": "アカウントを有効化しました"
   },
   "form": {
     "annotation": {

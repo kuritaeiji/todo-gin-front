@@ -22,3 +22,13 @@ export const emailClientError = { status: 500, content: 'email client error' }
 export const isEmailClientError = (response) => {
   return response && response.status === emailClientError.status && response.data.content === emailClientError.content
 }
+
+export const jwtExpiredError = { status: 401, content: 'jwt expired error' }
+export const isJwtExpiredError = (response) => {
+  return response && response.status === jwtExpiredError.status && response.data.content === jwtExpiredError.content
+}
+
+export const alreadyActivatedUserError = { status: 401, content: 'alreay activated user' }
+export const isAlreadyActivatedUserError = (response) => {
+  return response && response.status === alreadyActivatedUserError.status && response.data.content === alreadyActivatedUserError.content
+}
