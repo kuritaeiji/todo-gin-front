@@ -33,5 +33,8 @@ export const actions = {
   },
   countUpFlash ({ commit }) {
     commit('countUpFlash')
+  },
+  countUpFlashBecauseNotRedirect ({ dispatch }) {
+    dispatch('countUpFlash')
   }
 }

@@ -51,4 +51,10 @@ describe('actions', () => {
     actions.countUpFlash({ commit })
     expect(commit).toHaveBeenCalledWith('countUpFlash')
   })
+
+  it('countUpFlashBecauseNotRedirect', () => {
+    const dispatch = jest.fn()
+    actions.countUpFlashBecauseNotRedirect({ dispatch })
+    expect(dispatch).toHaveBeenCalledWith('countUpFlash')
+  })
 })

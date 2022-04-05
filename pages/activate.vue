@@ -9,13 +9,13 @@ export default {
       store.dispatch('flash/setFlash', { color: 'info', text: app.i18n.t('flash.activateUser') })
       redirect({ name: 'login' })
     } catch (error) {
-      if (isJwtExpiredError(error.response)) {
+      if (isJwtExpiredError(error)) {
         store.dispatch('flash/setFlash', { color: 'red', text: app.i18n.t('flash.jwtExpiredError') })
         redirect({ name: 'index' })
         return
       }
 
-      if (isAlreadyActivatedUserError(error.response)) {
+      if (isAlreadyActivatedUserError(error)) {
         store.dispatch('flash/setFlash', { color: 'red', text: app.i18n.t('flash.alreadyActivatedUserError') })
         redirect({ name: 'index' })
         return

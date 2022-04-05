@@ -55,12 +55,12 @@ export default {
       this.$router.push({ name: 'index' })
     },
     createUserReject (error) {
-      if (isValidationError(error.response) || isUniqueUserError(error.response)) {
+      if (isValidationError(error) || isUniqueUserError(error)) {
         this.setValidation(this.$t('validation.standard'))
         return
       }
 
-      if (isEmailClientError(error.response)) {
+      if (isEmailClientError(error)) {
         this.setFlash(this.$t('flash.activationEmailError'))
         this.$router.push({ name: 'index' })
         return

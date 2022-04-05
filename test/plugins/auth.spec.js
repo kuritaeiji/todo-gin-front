@@ -134,7 +134,7 @@ describe('plugins/Auth', () => {
 
       it('flashメッセージのtransitionCountを+する', () => {
         auth.logout(vue)
-        expect(auth.store.dispatch).toHaveBeenNthCalledWith(3, 'flash/countUpFlash')
+        expect(auth.store.dispatch).toHaveBeenNthCalledWith(3, 'flash/countUpFlashBecauseNotRedirect')
       })
 
       it('indexパスにリダイレクトしない', () => {
@@ -184,7 +184,7 @@ describe('plugins/Auth', () => {
         it('flashメッセージのtransitionCountを+する', () => {
           from = { name: 'login' }
           auth.authMiddleware({ from })
-          expect(store.dispatch).toHaveBeenNthCalledWith(2, 'flash/countUpFlash')
+          expect(store.dispatch).toHaveBeenNthCalledWith(2, 'flash/countUpFlashBecauseNotRedirect')
         })
       })
 
@@ -229,7 +229,7 @@ describe('plugins/Auth', () => {
       describe('遷移元がindexパスの場合', () => {
         it('flashのcountを+する', () => {
           auth.guestMiddleware({ from: { name: 'index' } })
-          expect(store.dispatch).toHaveBeenNthCalledWith(2, 'flash/countUpFlash')
+          expect(store.dispatch).toHaveBeenNthCalledWith(2, 'flash/countUpFlashBecauseNotRedirect')
         })
       })
 

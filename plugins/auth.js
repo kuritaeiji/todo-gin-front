@@ -33,7 +33,7 @@ export class Auth {
 
     if (this.route.name === 'index') {
       vue.$nuxt.setLayout('toppage')
-      this.store.dispatch('flash/countUpFlash')
+      this.store.dispatch('flash/countUpFlashBecauseNotRedirect')
       return null
     }
 
@@ -45,7 +45,7 @@ export class Auth {
       this.store.dispatch('flash/setFlash', { text: this.app.i18n.t('flash.authMiddleware'), color: 'red' })
       this.redirect({ name: 'login' })
       if (from.name === 'login') {
-        this.store.dispatch('flash/countUpFlash')
+        this.store.dispatch('flash/countUpFlashBecauseNotRedirect')
       }
     }
   }
@@ -55,7 +55,7 @@ export class Auth {
       this.store.dispatch('flash/setFlash', { text: this.app.i18n.t('flash.guestMiddleware'), color: 'red' })
       this.redirect({ name: 'index' })
       if (from.name === 'index') {
-        this.store.dispatch('flash/countUpFlash')
+        this.store.dispatch('flash/countUpFlashBecauseNotRedirect')
       }
     }
   }
@@ -71,7 +71,7 @@ export class Auth {
   }
 
   _loginReject (error) {
-    if (isRecordNotFoundError(error.response) || isPasswordAuthenticationError(error.response)) {
+    if (isRecordNotFoundError(error) || isPasswordAuthenticationError(error)) {
       this.store.dispatch('validation/setValidation', this.app.i18n.t(`error.login.${error.response.data.content}`))
       return
     }

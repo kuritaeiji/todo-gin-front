@@ -106,7 +106,7 @@ export default {
         await this.$axios.$get(`/users/unique?email=${this.email}`)
         this.errorMessages = []
       } catch (error) {
-        if (isUniqueUserError(error.response)) {
+        if (isUniqueUserError(error)) {
           this.errorMessages = ['既に登録済みです']
         } else {
           this.$handler.standardAxiosError(error)
