@@ -1,4 +1,4 @@
-import { isRecordNotFoundError, isPasswordAuthenticationError } from '~/errors'
+import { isRecordNotFoundError, isPasswordAuthenticationError, isNotLoggedInError, isNotLoggedInWithJwtIsExpiredError, isGuestError } from '~/errors'
 
 export class Auth {
   constructor ({ $axios, store, app, redirect, route }) {
@@ -11,10 +11,15 @@ export class Auth {
     this.storage = localStorage
     this.accessTokenKey = 'todoGinAccessToken'
     this.tokenType = 'Bearer '
+    this.tokenHeader = 'Authorization'
   }
 
   get loggedIn () {
     return this.store.getters['auth/loggedIn']
+  }
+
+  get accessToken () {
+    return this.storage.getItem(this.accessTokenKey)
   }
 
   async login (authParams) {
@@ -26,10 +31,11 @@ export class Auth {
     }
   }
 
-  logout (vue) {
-    this.storage.removeItem(this.accessTokenKey)
-    this.store.dispatch('auth/setLoggedIn', false)
-    this.store.dispatch('flash/setFlash', { color: 'info', text: this.app.i18n.t('flash.logout') })
+  logout (vue, flashText = 'flash.logout') {
+    // this.storage.removeItem(this.accessTokenKey)
+    // this.store.dispatch('auth/setLoggedIn', false)
+    this._coreLogout()
+    this.store.dispatch('flash/setFlash', { color: 'info', text: this.app.i18n.t(flashText) })
 
     if (this.route.name === 'index') {
       vue.$nuxt.setLayout('toppage')
@@ -60,8 +66,35 @@ export class Auth {
     }
   }
 
+  axiosRequestInterceptor (config) {
+    if (this.loggedIn) {
+      config.headers[`${this.tokenHeader}`] = this.accessToken
+    }
+  }
+
+  axiosErrorInterceptor (error) {
+    // backendのauthミドルウェアの対応
+    if (isNotLoggedInWithJwtIsExpiredError(error) || isNotLoggedInError(error)) {
+      this._coreLogout()
+      const flashText = isNotLoggedInWithJwtIsExpiredError(error) ? 'flash.notLoggedInWithJwtIsExpiredError' : 'flash.authMiddleware'
+      this.store.dispatch('flash/setFlash', { color: 'red', text: this.app.i18n.t(flashText) })
+      this.redirect({ name: 'login' })
+    }
+
+    // backendのguestミドルウェアの対応
+    if (isGuestError(error)) {
+      this.guestMiddleware({ from: this.route })
+    }
+  }
+
   hasJwt () {
     return !!this.storage.getItem(this.accessTokenKey)
+  }
+
+  // localstorageのtokenを削除し、authストアのloggedInをfalseにする -> これがログアウトの本質
+  _coreLogout () {
+    this.storage.removeItem(this.accessTokenKey)
+    this.store.dispatch('auth/setLoggedIn', false)
   }
 
   _loginResolve (response) {

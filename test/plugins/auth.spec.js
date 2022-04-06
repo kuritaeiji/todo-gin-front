@@ -1,5 +1,5 @@
 import { Auth } from '~/plugins/auth'
-import { recordNotFoundError, passwordAuthenticationError } from '~/errors'
+import { recordNotFoundError, passwordAuthenticationError, notLoggedInError, notLoggedInWithJwtIsExpiredError, guestError } from '~/errors'
 
 describe('plugins/Auth', () => {
   describe('login', () => {
@@ -247,6 +247,88 @@ describe('plugins/Auth', () => {
         auth.guestMiddleware({ from })
         expect(store.dispatch).not.toHaveBeenCalled()
         expect(redirect).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('axiosRequestInterceptor', () => {
+    it('ログインしている場合リクエストヘッダーにtoken付与する', () => {
+      const store = { getters: { 'auth/loggedIn': true } }
+      const token = 'token'
+      const config = { headers: {} }
+      const auth = new Auth({ store })
+      auth.storage.getItem = key => token
+      auth.axiosRequestInterceptor(config)
+      expect(config.headers[auth.tokenHeader]).toEqual(auth.accessToken)
+    })
+
+    it('ログインしていない場合、何もしない', () => {
+      const store = { getters: { 'auth/loggedIn': false } }
+      const config = { headers: {} }
+      const auth = new Auth({ store })
+      auth.axiosRequestInterceptor(config)
+      expect(config.headers).toEqual({})
+    })
+  })
+
+  describe('axiosErrorInterceptor', () => {
+    const app = { i18n: { t: key => key } }
+    let store
+    let redirect
+    let auth
+    beforeEach(() => {
+      store = { dispatch: jest.fn() }
+      redirect = jest.fn()
+      auth = new Auth({ store, redirect, app })
+      auth.storage = {
+        removeItem: jest.fn()
+      }
+    })
+
+    describe('axiosからnotLoggedInErrorが返る場合', () => {
+      const error = { response: { status: notLoggedInError.status, data: { content: notLoggedInError.content } } }
+
+      it('localstorageのtokenを削除する', () => {
+        auth.axiosErrorInterceptor(error)
+        expect(auth.storage.removeItem).toHaveBeenCalledWith(auth.accessTokenKey)
+      })
+
+      it('authストアのloggedInをfalseにする', () => {
+        auth.axiosErrorInterceptor(error)
+        expect(auth.store.dispatch).toHaveBeenNthCalledWith(1, 'auth/setLoggedIn', false)
+      })
+
+      it('ログインパスにリダイレクトする', () => {
+        auth.axiosErrorInterceptor(error)
+        expect(redirect).toHaveBeenCalledWith({ name: 'login' })
+      })
+
+      describe('有効期限以外の理由でnotLoggedInErrorになった場合', () => {
+        it('ログインするようにという、flashメッセージを作成する', () => {
+          error.response.status = notLoggedInError.status
+          error.response.data.content = notLoggedInError.content
+          auth.axiosErrorInterceptor(error)
+          expect(store.dispatch).toHaveBeenNthCalledWith(2, 'flash/setFlash', { color: 'red', text: 'flash.authMiddleware' })
+        })
+      })
+
+      describe('tokenの有効期限が切れていた場合', () => {
+        it('tokenの有効期限が切れているという、flashメッセージを作成する', () => {
+          error.response.status = notLoggedInWithJwtIsExpiredError.status
+          error.response.data.content = notLoggedInWithJwtIsExpiredError.content
+          auth.axiosErrorInterceptor(error)
+          expect(store.dispatch).toHaveBeenNthCalledWith(2, 'flash/setFlash', { color: 'red', text: 'flash.notLoggedInWithJwtIsExpiredError' })
+        })
+      })
+    })
+
+    describe('axiosからguestエラーが返る場合', () => {
+      it('guestMiddlewareメソッドに処理を任せる', () => {
+        auth.guestMiddleware = jest.fn()
+        auth.route = 'route'
+        const error = { response: { status: guestError.status, data: { content: guestError.content } } }
+        auth.axiosErrorInterceptor(error)
+        expect(auth.guestMiddleware).toHaveBeenCalledWith({ from: auth.route })
       })
     })
   })

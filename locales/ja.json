@@ -33,7 +33,9 @@
     "activationEmailError": "有効化メールを送信できませんでした",
     "jwtExpiredError": "トークンの有効期限が切れています",
     "alreadyActivatedUserError": "既にアカウントは有効化されています",
-    "activateUser": "アカウントを有効化しました"
+    "activateUser": "アカウントを有効化しました",
+    "notLoggedInWithJwtIsExpiredError": "有効期限が切れている為、もう一度ログインして下さい",
+    "withdraw": "退会しました"
   },
   "form": {
     "annotation": {

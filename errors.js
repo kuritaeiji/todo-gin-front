@@ -32,3 +32,18 @@ export const alreadyActivatedUserError = { status: 401, content: 'alreay activat
 export const isAlreadyActivatedUserError = ({ response }) => {
   return response && response.status === alreadyActivatedUserError.status && response.data.content === alreadyActivatedUserError.content
 }
+
+export const notLoggedInWithJwtIsExpiredError = { status: 401, content: 'user is not logged in with jwt is expired' }
+export const isNotLoggedInWithJwtIsExpiredError = ({ response }) => {
+  return response && response.status === notLoggedInWithJwtIsExpiredError.status && response.data.content === notLoggedInWithJwtIsExpiredError.content
+}
+
+export const notLoggedInError = { status: 401, content: 'user is not logged in' }
+export const isNotLoggedInError = ({ response }) => {
+  return response && response.status === notLoggedInError.status && response.data.content === notLoggedInError.content
+}
+
+export const guestError = { status: 401, content: 'user is already logged in' }
+export const isGuestError = ({ response }) => {
+  return response && response.status === guestError.status && response.data.content === guestError.content
+}

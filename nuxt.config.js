@@ -33,7 +33,8 @@ export default {
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
     '~/plugins/handler.js',
-    '~/plugins/auth.js'
+    '~/plugins/auth.js',
+    '~/plugins/axios.js'
   ],
 
   router: {

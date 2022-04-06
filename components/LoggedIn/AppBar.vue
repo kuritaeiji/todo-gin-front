@@ -13,12 +13,22 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex'
+
 export default {
   methods: {
+    ...mapActions('flash', ['setFlash']),
     logout () {
       this.$auth.logout(this)
     },
-    withdraw () {}
+    async withdraw () {
+      try {
+        await this.$axios.$delete('/users')
+        this.$auth.logout(this, 'flash.withdraw')
+      } catch (error) {
+        this.$handler.standardAxiosError(error)
+      }
+    }
   }
 }
 </script>
