@@ -19,7 +19,7 @@ export default ({ app, $axios, isDev }) => {
       console.dir(error)
     }
 
-    // backendのauthミドルウェアへの対応
+    // backendのauthミドルウェアへの対応s
     app.$auth.axiosErrorInterceptor(error)
   })
 }
