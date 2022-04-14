@@ -1,22 +1,18 @@
 <template>
-  <v-container fluid>
-    <v-card
-      v-for="list in lists"
-      :key="`list-card-${list.id}`"
-      flat
-      max-width="300"
-    >
-      <v-card-title class="pt-1 text-body-1 font-weight-bold">
-        {{ list.title }}
-      </v-card-title>
-    </v-card>
+  <v-container fluid class="d-flex flex-wrap">
+    <list-card v-for="list of lists" :key="`list-card-${list.id}`" :list="list" />
+
+    <list-create-form />
   </v-container>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
+import ListCard from '~/components/list/Card.vue'
+import ListCreateForm from '~/components/list/CreateForm.vue'
 
 export default {
+  components: { ListCard, ListCreateForm },
   layout ({ app }) {
     return app.$auth.loggedIn ? 'default' : 'toppage'
   },
