@@ -11,6 +11,11 @@ describe('getters', () => {
     const result = getters.lists({ lists: defaultLists })
     expect(result).toEqual(defaultLists)
   })
+
+  it('listsLength', () => {
+    const result = getters.listsLength({ lists: defaultLists })
+    expect(result).toEqual(defaultLists.length)
+  })
 })
 
 describe('mutations', () => {

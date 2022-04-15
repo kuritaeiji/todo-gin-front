@@ -18,7 +18,7 @@
       height="100%"
     >
       <v-form ref="form" @submit.prevent>
-        <list-form v-bind.sync="newList" @submit="createListTemplate" />
+        <list-form v-bind.sync="newList" @submit="createListTemplate" @cancel="cancelCreateList" />
         <v-btn
           small
           depressed
@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 import ListForm from '~/components/list/Form.vue'
 
 export default {
@@ -50,8 +50,15 @@ export default {
     return {
       isShow: false,
       newList: {
-        title: ''
+        title: '',
+        index: this.$store.getters['list/listsLength']
       }
+    }
+  },
+  computed: mapGetters('list', ['listsLength']),
+  watch: {
+    listsLength (newLength) {
+      this.newList.index = newLength
     }
   },
   methods: {
@@ -69,9 +76,17 @@ export default {
 
       try {
         await this.createList(this.newList)
+        this.resetCreatForm()
       } catch (error) {
         this.$handler.standardAxiosError(error)
       }
+    },
+    cancelCreateList () {
+      this.resetCreatForm()
+      this.closeForm()
+    },
+    resetCreatForm () {
+      this.newList.title = ''
     }
   }
 }

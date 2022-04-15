@@ -5,6 +5,9 @@ export const state = () => ({
 export const getters = {
   lists (state) {
     return state.lists
+  },
+  listsLength (state) {
+    return state.lists.length
   }
 }
 
