@@ -6,9 +6,10 @@
     autofocus
     hide-details
     validate-on-blur
+    class="font-weight-bold"
     :rules="rules"
-    class="mb-3"
     @keyup.enter="submit"
+    @keyup.esc="cancel"
   />
 </template>
 
@@ -40,6 +41,9 @@ export default {
   methods: {
     submit () {
       this.$emit('submit')
+    },
+    cancel () {
+      this.$emit('cancel')
     }
   }
 }

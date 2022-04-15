@@ -2,6 +2,7 @@ import Vuetify from 'vuetify'
 import { mount } from '@vue/test-utils'
 import localVue from '~/test/localVue'
 import ListCard from '~/components/list/Card.vue'
+import ListUpdateForm from '~/components/list/UpdateForm.vue'
 
 describe('components/Card.vue', () => {
   let vuetify
@@ -20,15 +21,15 @@ describe('components/Card.vue', () => {
   }
 
   describe('template', () => {
-    it('リストのタイトルが表示される', () => {
+    it('list-update-formコンポーネントにlistpropsを渡す', () => {
       const wrapper = mountCard()
-      expect(wrapper.findComponent({ name: 'v-card-title' }).text()).toEqual(list.title)
+      expect(wrapper.findComponent(ListUpdateForm).props().list).toEqual(list)
     })
   })
 
   describe('script', () => {
     it('listpropsを受け取る', () => {
-      const wrapper = mountCard()
+      const wrapper = mountCard({ stubs: { 'list-update-form': true } })
       expect(wrapper.props().list).toEqual(list)
     })
   })

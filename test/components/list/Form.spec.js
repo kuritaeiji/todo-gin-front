@@ -34,6 +34,12 @@ describe('components/ListForm.vue', () => {
       wrapper.find('input[type="text"]').trigger('keyup.enter')
       expect(mock).toHaveBeenCalled()
     })
+
+    it('text-field上でエスケープキーを押すとcancelメソッドを呼び出す', () => {
+      const wrapper = mountListForm({ methods: { cancel: mock } })
+      wrapper.find('input[type="text"]').trigger('keyup.esc')
+      expect(mock).toHaveBeenCalled()
+    })
   })
 
   describe('script', () => {
@@ -41,6 +47,12 @@ describe('components/ListForm.vue', () => {
       const wrapper = mountListForm()
       wrapper.vm.submit()
       expect(wrapper.emitted().submit).toBeTruthy()
+    })
+
+    it('cancelメソッド', () => {
+      const wrapper = mountListForm()
+      wrapper.vm.cancel()
+      expect(wrapper.emitted().cancel).toBeTruthy()
     })
   })
 })
