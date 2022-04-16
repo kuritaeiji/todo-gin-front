@@ -1,6 +1,10 @@
 <template>
   <div>
-    <v-card-title v-show="!isShowForm" class="pt-1 text-body-1 font-weight-bold height-40" @dblclick="openForm">
+    <v-card-title
+      v-show="!isShowForm"
+      class="pt-1 text-body-1 font-weight-bold height-40 user-select-none"
+      @dblclick="openForm"
+    >
       {{ list.title }}
     </v-card-title>
 

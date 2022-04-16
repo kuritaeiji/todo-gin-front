@@ -3,7 +3,8 @@ import { getters, mutations, actions } from '~/store/list'
 
 const defaultLists = [
   { id: 1, title: 'list1', index: 0, userID: 1 },
-  { id: 2, title: 'list2', index: 1, userID: 2 }
+  { id: 2, title: 'list2', index: 1, userID: 2 },
+  { id: 3, title: 'list3', index: 2, userID: 3 }
 ]
 
 describe('getters', () => {
@@ -48,8 +49,14 @@ describe('mutations', () => {
   it('destroyList', () => {
     const id = 1
     mutations.destroyList(state, id)
-    expect(state.lists.length).toEqual(1)
+    expect(state.lists.length).toEqual(2)
     expect(state.lists[0].id).not.toEqual(id)
+  })
+
+  it('replaceList', () => {
+    mutations.replaceList(state, { fromIndex: 0, toIndex: 2 })
+    expect(state.lists[2].id).toEqual(1)
+    expect(state.lists[0].id).toEqual(3)
   })
 })
 

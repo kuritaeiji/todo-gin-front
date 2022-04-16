@@ -8,6 +8,11 @@ export const getters = {
   },
   listsLength (state) {
     return state.lists.length
+  },
+  listIndex (state) {
+    return (id) => {
+      return state.lists.findIndex(list => list.id === id)
+    }
   }
 }
 
@@ -24,6 +29,12 @@ export const mutations = {
   },
   destroyList (state, id) {
     state.lists = state.lists.filter(list => list.id !== id)
+  },
+  replaceList (state, { fromIndex, toIndex }) {
+    const fromList = state.lists[fromIndex]
+    const toList = state.lists[toIndex]
+    state.lists.splice(fromIndex, 1, toList)
+    state.lists.splice(toIndex, 1, fromList)
   }
 }
 
@@ -43,5 +54,10 @@ export const actions = {
   async destroyList ({ commit }, id) {
     await this.$axios.$delete(`/lists/${id}`)
     commit('destroyList', id)
+  },
+  replaceList ({ commit, getters }, { fromListID, toListID }) {
+    const fromIndex = getters.listIndex(fromListID)
+    const toIndex = getters.listIndex(toListID)
+    commit('replaceList', { fromIndex, toIndex })
   }
 }

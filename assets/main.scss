@@ -5,3 +5,22 @@
 .height-40 {
   height: 40px;
 }
+
+.height-100-percent {
+  height: 100%;
+}
+
+.drag-element-none {
+  display: none !important;
+}
+
+.user-select-none {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.pointer-events-none {
+  pointer-events: none;
+}
