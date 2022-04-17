@@ -1,5 +1,12 @@
 <template>
-  <v-card flat width="300" color="grey" :height="height.toString()" class="mr-5 mb-5" />
+  <v-card
+    flat
+    width="300"
+    min-width="300"
+    color="grey"
+    :height="height"
+    class="mr-5 mb-5 list-card-placeholder"
+  />
 </template>
 
 <script>

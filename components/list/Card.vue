@@ -3,8 +3,7 @@
     flat
     min-width="300"
     width="300"
-    height="100%"
-    class="mr-5 mb-5 aligh-self-start d-flex justify-space-between"
+    class="mr-5 mb-5 d-flex justify-space-between"
     @mousedown="mouseDown"
   >
     <list-update-form :list="list" />

@@ -1,11 +1,11 @@
 <template>
-  <v-container fluid class="d-flex flex-wrap">
+  <v-container fluid fill-height class="d-flex flex-nowrap align-start overflow-x-auto">
     <list-card
       v-for="list of lists"
       :key="`list-card-${list.id}`"
       :list="list"
       class="list-card"
-      :data-listid="list.id"
+      :data-list-id="list.id"
       @mousedown="mouseDown"
     />
     <list-create-form />
@@ -19,7 +19,9 @@ import ListCard from '~/components/list/Card.vue'
 import ListCreateForm from '~/components/list/CreateForm.vue'
 import ListCardPlaceholder from '~/components/list/CardPlaceholder.vue'
 
-const defaultDragParam = { fromListID: null, toListID: null }
+const defaultDragParam = { id: null, index: null }
+const startScrollPx = 100
+const scrollSpeed = 10
 
 export default {
   components: { ListCard, ListCreateForm },
@@ -30,19 +32,19 @@ export default {
   data () {
     return {
       dragging: false,
+      draggingList: null,
       dragElement: '',
       element: '',
+      elementRect: '',
       placeholder: '',
-      elementLeft: 0,
-      elementTop: 0,
-      elementHeight: 0,
-      elementWidth: 0,
       isFirstMouseMove: false,
-      pageX: 0,
-      pageY: 0,
+      initialPageX: 0,
+      initialPageY: 0,
+      moveX: 0,
+      moveY: 0,
+      dragParam: { ...defaultDragParam },
       headerHeight: 0,
-      containerNode: '',
-      dragParam: { ...defaultDragParam }
+      containerElement: ''
     }
   },
   head () {
@@ -51,103 +53,64 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('list', ['lists', 'listIndex'])
+    ...mapGetters('list', ['lists', 'listIndexWithDestroy', 'listIndex']),
+    dragElementCenterX () {
+      return this.elementRect.left + this.moveX + (this.elementRect.width / 2)
+    },
+    dragElementCenterY () {
+      return this.elementRect.top + this.moveY + (this.elementRect.height / 2)
+    },
+    isChangedDraggedListIndex () {
+      return this.listIndex(this.draggingList.id) !== this.dragParam.index
+    }
   },
   mounted () {
-    this.headerHeight = document.getElementsByTagName('header')[0].getBoundingClientRect().height
-    this.containerNode = document.getElementsByClassName('container')[0]
+    this.headerHeight = document.getElementsByTagName('header')[0].clientHeight
+    this.containerElement = document.getElementsByClassName('container')[0]
     window.addEventListener('mousemove', this.mouseMove)
     window.addEventListener('mouseup', this.mouseUp)
-
-    // スクロールバー
-    document.addEventListener('scroll', () => {
-      const left = document.querySelector('.container.overflow-x-auto').scrollLeft
-      document.querySelector('.scrollbar').scrollTo(left, 0)
-    })
   },
   beforeDestroy () {
     window.removeEventListener('mousemove', this.mouseMove)
     window.removeEventListener('mouseup', this.mouseUp)
   },
   methods: {
-    ...mapActions('list', ['replaceList']),
+    ...mapActions('list', ['moveList']),
     mouseDown (event, list) {
       this.dragging = true
-      this.element = event.target
-      this.elementLeft = this.element.getBoundingClientRect().left
-      this.elementTop = this.element.getBoundingClientRect().top
-      this.elementHeight = this.element.getBoundingClientRect().height
-      this.elementWidth = this.element.getBoundingClientRect().width
+      this.element = event.currentTarget
+      this.elementRect = this.element.getBoundingClientRect()
       this.isFirstMouseMove = true
-      this.pageX = event.pageX
-      this.pageY = event.pageY
-      this.dragParam.fromListID = list.id
+      this.initialPageX = event.pageX
+      this.initialPageY = event.pageY
+      this.dragParam.id = list.id
+      this.draggingList = list
     },
     mouseMove (event) {
       if (this.dragging) {
         if (this.isFirstMouseMove) {
-          const Class = Vue.extend(ListCardPlaceholder)
-          const instance = new Class({
-            propsData: { height: this.elementHeight }
-          }).$mount()
-          this.placeholder = instance.$el
-          this.containerNode.insertBefore(this.placeholder, this.element.nextSibling)
-
-          this.dragElement = this.element.cloneNode(true)
-          this.element.classList.remove('d-flex')
-          this.element.classList.add('drag-element-none')
-          // 複製したノードはlist-cardを外す ドラッグしている要素以外を見つけ出す為
-          this.dragElement.classList.remove('list-card')
-          this.containerNode.appendChild(this.dragElement)
-          this.dragElement.style.position = 'absolute'
-          this.dragElement.style.zIndex = 100
-          this.dragElement.style.height = 'auto'
-          this.dragElement.style.top = this.elementTop + 'px'
-          this.dragElement.style.left = this.elementLeft + 'px'
-
+          this._setPlaceholder()
+          this.containerElement.insertBefore(this.placeholder, this.element.nextSibling)
+          this._setDragElement()
+          this._makeElementInvisible()
           this.isFirstMouseMove = false
         }
 
-        const moveX = event.pageX - this.pageX
-        const moveY = event.pageY - this.pageY
-        this.dragElement.style.left = this.elementLeft + moveX + 'px'
-        this.dragElement.style.top = this.elementTop + moveY - this.headerHeight + 'px'
+        this._moveDragElement(event)
 
-        const dragElementCenterX = this.elementLeft + moveX + (this.elementWidth / 2)
-        const dragElementCenterY = this.elementTop + moveY + (this.elementHeight / 2)
+        this._scrollRight()
+        this._scrollLeft()
 
-        const lists = [...document.getElementsByClassName('list-card')].filter(list => !list.classList.contains('drag-element-none'))
-
-        const self = this
-        lists.forEach((list) => {
-          const rect = list.getBoundingClientRect()
-          const centerX = rect.left + (rect.width / 2)
-          const centerY = rect.top + (rect.height / 2)
-          const offsetX = dragElementCenterX - centerX
-          const offsetY = dragElementCenterY - centerY
-
-          if (Math.abs(offsetX) < (self.elementWidth / 2) && Math.abs(offsetY) < (self.elementHeight / 2)) {
-            self.placeholder.remove()
-            const Class = Vue.extend(ListCardPlaceholder)
-            const instance = new Class({
-              propsData: { height: self.elementHeight }
-            }).$mount()
-            self.placeholder = instance.$el
-            if (offsetY > 0) {
-              // 下からの場合入れ替えるリストの前にプレースホルダーを置く
-              self.containerNode.insertBefore(self.placeholder, list)
-            } else {
-              // 上からの場合入れ替えるリストの後にプレースホルダーを置く
-              self.containerNode.insertBefore(self.placeholder, list.nextSibling)
-            }
-            self.dragParam.toListID = Number(list.dataset.listid)
-          }
-        })
+        this._moveListTemplate()
       }
     },
     mouseUp () {
-      if (this.dragParam.fromListID && this.dragParam.toListID) {
-        this.replaceList(this.dragParam)
+      if (!this.dragging) {
+        return
+      }
+
+      if (this.dragParam.id !== null && this.dragParam.index !== null && this.isChangedDraggedListIndex) {
+        this.moveList(this.dragParam)
       }
 
       this.dragging = false
@@ -156,6 +119,78 @@ export default {
       this.placeholder.remove()
       this.dragElement.remove()
       this.dragParam = { ...defaultDragParam }
+    },
+    _setPlaceholder () {
+      const Class = Vue.extend(ListCardPlaceholder)
+      const instance = new Class({
+        propsData: { height: this.elementRect.height }
+      }).$mount()
+      this.placeholder = instance.$el
+    },
+    _setDragElement () {
+      this.dragElement = this.element.cloneNode(true)
+      // 複製したノードはlist-cardを外す ドラッグしている要素以外を見つけ出す為
+      this.dragElement.classList.remove('list-card')
+      this.containerElement.appendChild(this.dragElement)
+      this.dragElement.style.position = 'absolute'
+      this.dragElement.style.zIndex = 100
+      this.dragElement.style.top = this.elementRect.top + 'px'
+      this.dragElement.style.left = this.elementRect.left + 'px'
+    },
+    _makeElementInvisible () {
+      this.element.classList.remove('d-flex')
+      this.element.classList.add('drag-element-none')
+    },
+    _moveDragElement (event) {
+      // 最初の位置 + 動いた距離
+      this.moveX = event.pageX - this.initialPageX
+      this.moveY = event.pageY - this.initialPageY
+      this.dragElement.style.left = this.elementRect.left + this.moveX + 'px'
+      this.dragElement.style.top = this.elementRect.top + this.moveY - this.headerHeight + 'px'
+    },
+    _scrollRight () {
+      const containerActualWidth = window.scrollX + this.containerElement.clientWidth
+      const diffWidthRight = containerActualWidth - this.dragElementCenterX
+      if (diffWidthRight < startScrollPx) {
+        this.containerElement.scrollLeft += (startScrollPx - diffWidthRight) / scrollSpeed
+      }
+    },
+    _scrollLeft () {
+      const diffWidth = this.dragElementCenterX - window.scrollX
+      if (diffWidth < startScrollPx) {
+        this.containerElement.scrollLeft -= (startScrollPx - diffWidth) / scrollSpeed
+      }
+    },
+    _moveListTemplate () {
+      const lists = [...document.getElementsByClassName('list-card')].filter(list => !list.classList.contains('drag-element-none'))
+      const self = this
+
+      lists.forEach((list) => {
+        const rect = list.getBoundingClientRect()
+        const centerX = rect.left + (rect.width / 2)
+        const offsetX = this.dragElementCenterX - centerX
+
+        if (Math.abs(offsetX) < (self.elementRect.width / 2)) {
+          self.placeholder.remove()
+          self._setPlaceholder()
+
+          const listID = Number(list.dataset.listId)
+          if (offsetX < 0) {
+            // 左から右入れ替えるリストの後にプレースホルダーを置く
+            self.containerElement.insertBefore(self.placeholder, list.nextSibling)
+            Vue.set(this.dragParam, 'index', this.listIndexWithDestroy(listID, this.dragParam.id) + 1)
+          }
+          if (offsetX > 0) {
+            // 右から左に入れ替えるリストの後にプレースホルダーを置く
+            self.containerElement.insertBefore(self.placeholder, list)
+            Vue.set(this.dragParam, 'index', this.listIndexWithDestroy(listID, this.dragParam.id))
+          }
+        }
+      })
+    },
+    _setDragParamIndex () {
+      // containerの子要素のうち、placeholderのindexがlistの移動先になる。ただしdispay:noneの状態のリストは子要素から削除する
+      this.dragParam.index = [...this.containerElement.children].filter(child => !child.classList.contains('drag-element-none')).findIndex(child => child.classList.contains('list-card-placeholder'))
     }
   }
 }

@@ -13,6 +13,17 @@ export const getters = {
     return (id) => {
       return state.lists.findIndex(list => list.id === id)
     }
+  },
+  listIndexWithDestroy (state) {
+    return (id, destroyID) => {
+      const lists = state.lists.filter(list => list.id !== destroyID)
+      return lists.findIndex(list => list.id === id)
+    }
+  },
+  findList (state) {
+    return (id) => {
+      return state.lists.find(list => list.id === id)
+    }
   }
 }
 
@@ -30,11 +41,8 @@ export const mutations = {
   destroyList (state, id) {
     state.lists = state.lists.filter(list => list.id !== id)
   },
-  replaceList (state, { fromIndex, toIndex }) {
-    const fromList = state.lists[fromIndex]
-    const toList = state.lists[toIndex]
-    state.lists.splice(fromIndex, 1, toList)
-    state.lists.splice(toIndex, 1, fromList)
+  addList (state, { list, index }) {
+    state.lists.splice(index, 0, list)
   }
 }
 
@@ -55,9 +63,10 @@ export const actions = {
     await this.$axios.$delete(`/lists/${id}`)
     commit('destroyList', id)
   },
-  replaceList ({ commit, getters }, { fromListID, toListID }) {
-    const fromIndex = getters.listIndex(fromListID)
-    const toIndex = getters.listIndex(toListID)
-    commit('replaceList', { fromIndex, toIndex })
+  moveList ({ commit, getters }, { id, index }) {
+    // await this.$axios.$put(`/lists/${id}/move`, { index })
+    const list = getters.findList(id)
+    commit('destroyList', id)
+    commit('addList', { list, index })
   }
 }
