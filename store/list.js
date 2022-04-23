@@ -63,8 +63,8 @@ export const actions = {
     await this.$axios.$delete(`/lists/${id}`)
     commit('destroyList', id)
   },
-  moveList ({ commit, getters }, { id, index }) {
-    // await this.$axios.$put(`/lists/${id}/move`, { index })
+  async moveList ({ commit, getters }, { id, index }) {
+    await this.$axios.$put(`/lists/${id}/move`, { index })
     const list = getters.findList(id)
     commit('destroyList', id)
     commit('addList', { list, index })

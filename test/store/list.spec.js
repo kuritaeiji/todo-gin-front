@@ -2,9 +2,9 @@
 import { getters, mutations, actions } from '~/store/list'
 
 const defaultLists = [
-  { id: 1, title: 'list1', index: 0, userID: 1 },
-  { id: 2, title: 'list2', index: 1, userID: 2 },
-  { id: 3, title: 'list3', index: 2, userID: 3 }
+  { id: 1, title: 'list1' },
+  { id: 2, title: 'list2' },
+  { id: 3, title: 'list3' }
 ]
 
 describe('getters', () => {
@@ -16,6 +16,22 @@ describe('getters', () => {
   it('listsLength', () => {
     const result = getters.listsLength({ lists: defaultLists })
     expect(result).toEqual(defaultLists.length)
+  })
+
+  it('listIndex', () => {
+    const result = getters.listIndex({ lists: defaultLists })(1)
+    expect(result).toEqual(0)
+  })
+
+  it('listIndexWithDestroy', () => {
+    // id1を削除した時のid2のindex
+    const result = getters.listIndexWithDestroy({ lists: defaultLists })(2, 1)
+    expect(result).toEqual(0)
+  })
+
+  it('findList', () => {
+    const result = getters.findList({ lists: defaultLists })(1)
+    expect(result).toEqual(defaultLists[0])
   })
 })
 
@@ -53,10 +69,11 @@ describe('mutations', () => {
     expect(state.lists[0].id).not.toEqual(id)
   })
 
-  it('replaceList', () => {
-    mutations.replaceList(state, { fromIndex: 0, toIndex: 2 })
-    expect(state.lists[2].id).toEqual(1)
-    expect(state.lists[0].id).toEqual(3)
+  it('addList', () => {
+    const list = { id: 4, title: 'test title' }
+    const index = 1
+    mutations.addList(state, { list, index })
+    expect(state.lists).toEqual([defaultLists[0], list, defaultLists[1], defaultLists[2]])
   })
 })
 
@@ -65,12 +82,17 @@ describe('actions', () => {
   beforeEach(() => {
     commit = jest.fn()
   })
-  const axiosMock = {
-    $get: jest.fn(),
-    $post: jest.fn(),
-    $put: jest.fn(),
-    $delete: jest.fn()
-  }
+  let axiosMock
+  beforeEach(() => {
+    axiosMock = {
+      $get: jest.fn(),
+      $post: jest.fn(),
+      $put: jest.fn(),
+      $delete: jest.fn(),
+      $move: jest.fn()
+    }
+  })
+
   const axiosStub = {
     async $get () { return defaultLists },
     async $post () { return defaultLists[0] },
@@ -133,6 +155,33 @@ describe('actions', () => {
       actions.$axios = axiosStub
       await actions.destroyList({ commit }, id)
       expect(commit).toHaveBeenCalledWith('destroyList', id)
+    })
+  })
+
+  describe('moveList', () => {
+    let params
+    let getters
+    beforeEach(() => {
+      params = { id: 1, index: 3 }
+      getters = { findList (id) { return defaultLists[0] } }
+    })
+
+    it('apiと通信してリストを移動する', () => {
+      actions.$axios = axiosMock
+      actions.moveList({ commit, getters }, params)
+      expect(axiosMock.$put).toHaveBeenCalledWith(`/lists/${params.id}/move`, { index: params.index })
+    })
+
+    it('動かすリストの削除', async () => {
+      actions.$axios = axiosStub
+      await actions.moveList({ commit, getters }, params)
+      expect(commit).toHaveBeenNthCalledWith(1, 'destroyList', params.id)
+    })
+
+    it('動かしたリストをindex番号に追加', async () => {
+      actions.$axios = axiosStub
+      await actions.moveList({ commit, getters }, params)
+      expect(commit).toHaveBeenNthCalledWith(2, 'addList', { list: defaultLists[0], index: params.index })
     })
   })
 })

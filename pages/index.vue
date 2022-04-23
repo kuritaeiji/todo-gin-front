@@ -104,13 +104,13 @@ export default {
         this._moveListTemplate()
       }
     },
-    mouseUp () {
+    async mouseUp () {
       if (!this.dragging) {
         return
       }
 
       if (this.dragParam.id !== null && this.dragParam.index !== null && this.isChangedDraggedListIndex) {
-        this.moveList(this.dragParam)
+        await this.moveList(this.dragParam)
       }
 
       this.dragging = false
