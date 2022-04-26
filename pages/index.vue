@@ -7,7 +7,9 @@
       class="list-card"
       :data-list-id="list.id"
       @mousedown="mouseDown"
-    />
+    >
+      <card-create-form :list-id="list.id" />
+    </list-card>
     <list-create-form />
   </v-container>
 </template>
@@ -18,13 +20,14 @@ import { mapGetters, mapActions } from 'vuex'
 import ListCard from '~/components/list/Card.vue'
 import ListCreateForm from '~/components/list/CreateForm.vue'
 import ListCardPlaceholder from '~/components/list/CardPlaceholder.vue'
+import CardCreateForm from '~/components/card/CreateForm.vue'
 
 const defaultDragParam = { id: null, index: null }
 const startScrollPx = 100
 const scrollSpeed = 10
 
 export default {
-  components: { ListCard, ListCreateForm },
+  components: { ListCard, ListCreateForm, CardCreateForm },
   layout ({ app }) {
     return app.$auth.loggedIn ? 'default' : 'toppage'
   },
