@@ -3,11 +3,15 @@
     flat
     min-width="300"
     width="300"
-    class="mr-5 mb-5 d-flex justify-space-between"
+    class="mr-5 mb-5"
     @mousedown="mouseDown"
   >
-    <list-update-form :list="list" />
-    <list-destroy-btn :list="list" />
+    <div class="d-flex justify-space-between width-300">
+      <list-update-form :list="list" />
+      <list-destroy-btn :list="list" />
+    </div>
+
+    <slot /> <!-- リストが所有しているカード + カード追加フォームが入る -->
   </v-card>
 </template>
 
