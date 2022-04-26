@@ -28,7 +28,7 @@ export default {
   layout ({ app }) {
     return app.$auth.loggedIn ? 'default' : 'toppage'
   },
-  middleware: ['auth', 'getLists'],
+  middleware: ['getLists'],
   data () {
     return {
       dragging: false,
