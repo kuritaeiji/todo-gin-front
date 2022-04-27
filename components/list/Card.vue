@@ -3,7 +3,7 @@
     flat
     min-width="300"
     width="300"
-    class="mr-5 mb-5 flex-column"
+    class="mr-5 mb-5 flex-column cursor-pointer"
     @mousedown="mouseDown"
   >
     <div class="d-flex justify-space-between">

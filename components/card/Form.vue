@@ -36,7 +36,8 @@ export default {
         return this.title
       },
       set (val) {
-        if (/^\s+$/.test(val)) {
+        // ホワイトスペースのみの場合と改行文字が一つでも入る場合はtitleをupdateしない
+        if (/^\s+$/.test(val) || /.*\n.*/.test(val)) {
           this.$refs.title.lazyValue = val.slice(0, -1)
           return
         }
