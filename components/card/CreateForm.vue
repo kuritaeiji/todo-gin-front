@@ -1,11 +1,11 @@
 <template>
-  <div>
+  <div class="mx-3 mb-1">
     <v-btn
       v-show="!isShowForm"
       block
       depressed
       color="white"
-      class="primary--text font-weight-bold justify-start"
+      class="primary--text font-weight-bold justify-start px-0"
       @click="toggleIsShowForm"
     >
       ＋ カードを追加
