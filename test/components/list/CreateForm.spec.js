@@ -5,6 +5,7 @@ import { mount } from '@vue/test-utils'
 import localVue from '~/test/localVue'
 import ListCreateForm from '~/components/list/CreateForm.vue'
 import ListForm from '~/components/list/Form.vue'
+import ListCardCreateBtn from '~/components/ui/ListCardCreateBtn.vue'
 
 describe('components/ListCreateForm.vue', () => {
   let vuetify
@@ -35,7 +36,8 @@ describe('components/ListCreateForm.vue', () => {
   }
 
   const stubs = {
-    'list-form': true
+    'list-form': true,
+    'list-card-create-btn': true
   }
 
   const mountForm = (options) => {
@@ -56,8 +58,8 @@ describe('components/ListCreateForm.vue', () => {
       expect(addListBtn.isVisible()).toEqual(true)
     })
 
-    it('リスト追加ボタンをクリックするとopenFormメソッドが呼び出される', () => {
-      const wrapper = mountForm({ stubs, store: createStore(), methods: { openForm: mock } })
+    it('リスト追加ボタンをクリックするとtoggleIsShowメソッドが呼び出される', () => {
+      const wrapper = mountForm({ stubs, store: createStore(), methods: { toggleIsShow: mock } })
       const addListBtn = wrapper.findAllComponents({ name: 'v-btn' }).at(0)
       addListBtn.vm.$emit('click')
       expect(mock).toHaveBeenCalled()
@@ -100,16 +102,18 @@ describe('components/ListCreateForm.vue', () => {
       })
     })
 
-    it('フォームのリストを追加ボタンをクリックするとcreateListTemplateが呼び出される', () => {
-      const wrapper = mountForm({ stubs, store: createStore(), methods: { createListTemplate: mock } })
-      wrapper.findAllComponents({ name: 'v-btn' }).at(1).vm.$emit('click')
-      expect(mock).toHaveBeenCalled()
-    })
+    describe('list-card-create-btnコンポーネント', () => {
+      it('createイベントが発火するとcreateListTemplateが呼び出される', () => {
+        const wrapper = mountForm({ methods: { createListTemplate: mock }, store: createStore() })
+        wrapper.findComponent(ListCardCreateBtn).vm.$emit('create')
+        expect(mock).toHaveBeenCalled()
+      })
 
-    it('バツボタンをクリックするとcloseFormメソッドが呼び出される', () => {
-      const wrapper = mountForm({ stubs, store: createStore(), methods: { closeForm: mock } })
-      wrapper.findAllComponents({ name: 'v-btn' }).at(2).vm.$emit('click')
-      expect(mock).toHaveBeenCalled()
+      it('cencelイベントが発火するとcancelCreateListメソッドが呼び出される', () => {
+        const wrapper = mountForm({ methods: { cancelCreateList: mock }, store: createStore() })
+        wrapper.findComponent(ListCardCreateBtn).vm.$emit('cancel')
+        expect(mock).toHaveBeenCalled()
+      })
     })
   })
 
@@ -154,16 +158,12 @@ describe('components/ListCreateForm.vue', () => {
     })
 
     describe('methods', () => {
-      it('openForm', () => {
+      it('toggleIsShow', async () => {
         const wrapper = mountForm({ stubs, store: createStore() })
-        wrapper.vm.openForm()
+        await wrapper.setData({ isShow: false })
+        wrapper.vm.toggleIsShow()
         expect(wrapper.vm.$data.isShow).toEqual(true)
-      })
-
-      it('closeForm', async () => {
-        const wrapper = mountForm({ stubs, store: createStore() })
-        await wrapper.setData({ isShow: true })
-        wrapper.vm.closeForm()
+        wrapper.vm.toggleIsShow()
         expect(wrapper.vm.$data.isShow).toEqual(false)
       })
 

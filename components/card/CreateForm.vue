@@ -8,11 +8,12 @@
       class="primary--text font-weight-bold justify-start px-0"
       @click="toggleIsShowForm"
     >
-      ＋ カードを追加
+      ＋ {{ btnText }}
     </v-btn>
 
     <v-form v-show="isShowForm" ref="form" @submit.prevent>
       <card-form :title.sync="title" @submit="createCardTemplate" @cancel="cancelCreateCard" />
+      <list-card-create-btn :btn-text="btnText" @create="createCardTemplate" @cancel="cancelCreateCard" />
     </v-form>
   </div>
 </template>
@@ -20,9 +21,10 @@
 <script>
 import { mapActions } from 'vuex'
 import CardForm from '~/components/card/Form.vue'
+import ListCardCreateBtn from '~/components/ui/ListCardCreateBtn.vue'
 
 export default {
-  components: { CardForm },
+  components: { CardForm, ListCardCreateBtn },
   props: {
     listId: {
       type: Number,
@@ -32,7 +34,8 @@ export default {
   data () {
     return {
       isShowForm: false,
-      title: ''
+      title: '',
+      btnText: 'カードを追加'
     }
   },
   methods: {

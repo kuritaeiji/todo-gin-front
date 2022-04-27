@@ -6,9 +6,9 @@
       width="300"
       color="white"
       class="primary--text font-weight-bold justify-start"
-      @click="openForm"
+      @click="toggleIsShow"
     >
-      ＋ リストを追加
+      ＋ {{ btnText }}
     </v-btn>
 
     <v-card
@@ -19,20 +19,7 @@
     >
       <v-form ref="form" @submit.prevent>
         <list-form v-bind.sync="newList" @submit="createListTemplate" @cancel="cancelCreateList" />
-        <v-btn
-          small
-          depressed
-          color="primary"
-          class="white--text text-body-2 font-weight-bold mr-1"
-          @click="createListTemplate"
-        >
-          リストを追加
-        </v-btn>
-        <v-btn icon @click="closeForm">
-          <v-icon>
-            mdi-close
-          </v-icon>
-        </v-btn>
+        <list-card-create-btn :btn-text="btnText" @create="createListTemplate" @cancel="cancelCreateList" />
       </v-form>
     </v-card>
   </div>
@@ -41,10 +28,12 @@
 <script>
 import { mapActions, mapGetters } from 'vuex'
 import ListForm from '~/components/list/Form.vue'
+import ListCardCreateBtn from '~/components/ui/ListCardCreateBtn.vue'
 
 export default {
   components: {
-    ListForm
+    ListForm,
+    ListCardCreateBtn
   },
   data () {
     return {
@@ -52,7 +41,8 @@ export default {
       newList: {
         title: '',
         index: this.$store.getters['list/listsLength']
-      }
+      },
+      btnText: 'リストを追加'
     }
   },
   computed: mapGetters('list', ['listsLength']),
@@ -63,11 +53,8 @@ export default {
   },
   methods: {
     ...mapActions('list', ['createList']),
-    openForm () {
-      this.isShow = true
-    },
-    closeForm () {
-      this.isShow = false
+    toggleIsShow () {
+      this.isShow = !this.isShow
     },
     async createListTemplate () {
       if (!this.$refs.form.validate()) {
@@ -83,7 +70,7 @@ export default {
     },
     cancelCreateList () {
       this.resetCreatForm()
-      this.closeForm()
+      this.toggleIsShow()
     },
     resetCreatForm () {
       this.newList.title = ''

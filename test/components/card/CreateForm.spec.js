@@ -5,6 +5,7 @@ import { mount } from '@vue/test-utils'
 import localVue from '~/test/localVue'
 import CardCreateForm from '~/components/card/CreateForm.vue'
 import CardForm from '~/components/card/Form.vue'
+import ListCardCreateBtn from '~/components/ui/ListCardCreateBtn.vue'
 
 describe('components/CardCreateForm.vue', () => {
   let vuetify
@@ -23,7 +24,7 @@ describe('components/CardCreateForm.vue', () => {
       ...options
     })
   }
-  const stubs = { 'card-form': true }
+  const stubs = { 'card-form': true, 'list-card-create-btn': true }
 
   describe('template', () => {
     describe('カード追加ボタン', () => {
@@ -77,9 +78,28 @@ describe('components/CardCreateForm.vue', () => {
         expect(mock).toHaveBeenCalled()
       })
 
-      it('cancelいベンドがemitされるとcancelCreateCardメソッドが呼び出される', () => {
+      it('cancelイベントがemitされるとcancelCreateCardメソッドが呼び出される', () => {
         const wrapper = mountCardCreateForm({ methods: { cancelCreateCard: mock } })
         wrapper.findComponent(CardForm).vm.$emit('cancel')
+        expect(mock).toHaveBeenCalled()
+      })
+    })
+
+    describe('list-card-create-btnコンポーネント', () => {
+      it('btnTextPropsを渡す', () => {
+        const wrapper = mountCardCreateForm()
+        expect(wrapper.findComponent(ListCardCreateBtn).props().btnText).toEqual(wrapper.vm.$data.btnText)
+      })
+
+      it('createイベントが発火すると、createCardTemplateメソッドを呼び出す', () => {
+        const wrapper = mountCardCreateForm({ methods: { createCardTemplate: mock } })
+        wrapper.findComponent(ListCardCreateBtn).vm.$emit('create')
+        expect(mock).toHaveBeenCalled()
+      })
+
+      it('cancelイベントが発火すると、cancelCreateCardメソッドを呼び出す', () => {
+        const wrapper = mountCardCreateForm({ methods: { cancelCreateCard: mock } })
+        wrapper.findComponent(ListCardCreateBtn).vm.$emit('cancel')
         expect(mock).toHaveBeenCalled()
       })
     })
