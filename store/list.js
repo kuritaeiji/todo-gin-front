@@ -87,8 +87,9 @@ export const actions = {
     const response = await this.$axios.$get('/lists')
     commit('setLists', response)
   },
-  async createList ({ commit }, list) {
-    const response = await this.$axios.$post('/lists', list)
+  async createList ({ commit, getters }, title) {
+    const index = getters.listsLength
+    const response = await this.$axios.$post('/lists', { title, index })
     commit('createList', response)
   },
   async updateList ({ commit }, list) {

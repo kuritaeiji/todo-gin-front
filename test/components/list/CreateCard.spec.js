@@ -3,7 +3,7 @@ import Vuetify from 'vuetify'
 import { Store } from 'vuex'
 import { mount } from '@vue/test-utils'
 import localVue from '~/test/localVue'
-import ListCreateForm from '~/components/list/CreateForm.vue'
+import ListCreateCard from '~/components/list/CreateCard.vue'
 import ListForm from '~/components/list/Form.vue'
 import ListCardCreateBtn from '~/components/ui/ListCardCreateBtn.vue'
 
@@ -17,18 +17,14 @@ describe('components/ListCreateForm.vue', () => {
     actionMock = jest.fn()
   })
 
-  const listsLength = () => 10
   const createStore = (createList) => {
-    if (!createList) { createList = actionMock }
+    if (createList === undefined) { createList = actionMock }
     return new Store({
       modules: {
         list: {
           namespaced: true,
           actions: {
             createList
-          },
-          getters: {
-            listsLength
           }
         }
       }
@@ -41,7 +37,7 @@ describe('components/ListCreateForm.vue', () => {
   }
 
   const mountForm = (options) => {
-    return mount(ListCreateForm, {
+    return mount(ListCreateCard, {
       vuetify,
       localVue,
       ...options
@@ -67,7 +63,7 @@ describe('components/ListCreateForm.vue', () => {
 
     it('フォームの表示・非表示', async () => {
       const wrapper = mountForm({ stubs, store: createStore() })
-      const form = wrapper.findComponent({ name: 'v-card' })
+      const form = wrapper.findComponent({ name: 'v-form' })
       await wrapper.setData({ isShow: true })
       expect(form.isVisible()).toEqual(true)
       await wrapper.setData({ isShow: false })
@@ -76,17 +72,17 @@ describe('components/ListCreateForm.vue', () => {
 
     describe('list-form', () => {
       it('propsとしてtitleを渡す', async () => {
-        const newList = { title: 'title' }
+        const title = 'title'
         const wrapper = mountForm({ store: createStore() })
-        await wrapper.setData({ newList })
-        expect(wrapper.findComponent(ListForm).props().title).toEqual(newList.title)
+        await wrapper.setData({ title })
+        expect(wrapper.findComponent(ListForm).props().title).toEqual(title)
       })
 
       it('update:titleがemitされるとnewListのtitleが更新される', () => {
         const wrapper = mountForm({ store: createStore() })
         const title = 'title'
         wrapper.findComponent(ListForm).vm.$emit('update:title', title)
-        expect(wrapper.vm.$data.newList.title).toEqual(title)
+        expect(wrapper.vm.$data.title).toEqual(title)
       })
 
       it('submitがemitされるとcreateListTemplateメソッドが呼び出される', () => {
@@ -118,45 +114,6 @@ describe('components/ListCreateForm.vue', () => {
   })
 
   describe('script', () => {
-    describe('data', () => {
-      it('newListデータのindexの初期値はstoreのlistsLengthでtitleはから文字列', () => {
-        const wrapper = mountForm({ stubs, store: createStore() })
-        expect(wrapper.vm.$data.newList).toEqual({ title: '', index: listsLength() })
-      })
-    })
-
-    describe('computed', () => {
-      it('listsLengthはstoreのgetterのlistsLength', () => {
-        const wrapper = mountForm({ stubs, store: createStore() })
-        expect(wrapper.vm.listsLength).toEqual(listsLength())
-      })
-    })
-
-    describe('watch', () => {
-      it('storeのlistsLengthが変わるとnewListデータのindexもそれに追随する', async () => {
-        const wrapper = mountForm({
-          stubs,
-          store: createStore(),
-          data () {
-            return { listsLengthData: listsLength() }
-          },
-          computed: {
-            listsLength: {
-              get () {
-                return this.listsLengthData
-              },
-              set (val) {
-                this.listsLengthData = val
-              }
-            }
-          }
-        })
-        const newListsLength = 1000
-        await wrapper.setData({ listsLengthData: newListsLength })
-        expect(wrapper.vm.$data.newList.index).toEqual(newListsLength)
-      })
-    })
-
     describe('methods', () => {
       it('toggleIsShow', async () => {
         const wrapper = mountForm({ stubs, store: createStore() })
@@ -181,25 +138,26 @@ describe('components/ListCreateForm.vue', () => {
 
         describe('フォームのバリデーションがfalseの場合', () => {
           it('createListメソッドが呼び出されない', () => {
-            const wrapper = mountForm({ stubs: { 'v-form': form(false) }, store: createStore(mock) })
+            const wrapper = mountForm({ stubs: { 'v-form': form(false) }, store: createStore() })
             wrapper.vm.createListTemplate()
-            expect(mock).not.toHaveBeenCalled()
+            expect(actionMock).not.toHaveBeenCalled()
           })
         })
 
         describe('フォームのバリデーションがtrueの場合', () => {
-          it('createListアクションを呼び出す', () => {
-            const wrapper = mountForm({ stubs: { 'v-form': form(true) }, store: createStore(mock) })
+          it('createListアクションを呼び出す', async () => {
+            const wrapper = mountForm({ stubs: { 'v-form': form(true) }, store: createStore() })
+            await wrapper.setData({ title: 'new title' })
             wrapper.vm.createListTemplate()
-            expect(mock).toHaveBeenCalled()
+            expect(actionMock.mock.calls[0][1]).toEqual(wrapper.vm.$data.title)
           })
 
-          it('createListアクションが正常に終了した場合、newListを初期化する', async () => {
+          it('createListアクションが正常に終了した場合、dataのtitleを初期化する', async () => {
             const createList = () => Promise.resolve()
             const wrapper = mountForm({ stubs: { 'v-form': form(true), ...stubs }, store: createStore(createList) })
-            await wrapper.setData({ newList: { title: 'new title', index: 0 } })
+            await wrapper.setData({ title: 'new title' })
             await wrapper.vm.createListTemplate()
-            expect(wrapper.vm.$data.newList.title).toEqual('')
+            expect(wrapper.vm.$data.title).toEqual('')
           })
 
           it('createListでエラーが返る場合$handler.standardAxiosErrorを呼び出す', async () => {
@@ -221,9 +179,9 @@ describe('components/ListCreateForm.vue', () => {
       describe('cancelCreateList', () => {
         it('newListデータを初期化する', async () => {
           const wrapper = mountForm({ stubs, store: createStore() })
-          await wrapper.setData({ newList: { title: 'new title', index: 0 } })
+          await wrapper.setData({ title: 'new title' })
           wrapper.vm.cancelCreateList()
-          expect(wrapper.vm.$data.newList.title).toEqual('')
+          expect(wrapper.vm.$data.title).toEqual('')
         })
 
         it('isShowをfalseにする', async () => {

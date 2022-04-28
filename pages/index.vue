@@ -15,7 +15,8 @@
       />
       <card-create-form :list-id="list.id" />
     </list-card>
-    <list-create-form />
+
+    <list-create-card />
   </v-container>
 </template>
 
@@ -23,7 +24,7 @@
 import Vue from 'vue'
 import { mapGetters, mapActions } from 'vuex'
 import ListCard from '~/components/list/Card.vue'
-import ListCreateForm from '~/components/list/CreateForm.vue'
+import ListCreateCard from '~/components/list/CreateCard.vue'
 import ListCardPlaceholder from '~/components/list/CardPlaceholder.vue'
 import CardCreateForm from '~/components/card/CreateForm.vue'
 import CardCard from '~/components/card/Card.vue'
@@ -33,7 +34,7 @@ const startScrollPx = 100
 const scrollSpeed = 10
 
 export default {
-  components: { ListCard, ListCreateForm, CardCreateForm, CardCard },
+  components: { ListCard, CardCreateForm, ListCreateCard, CardCard },
   layout ({ app }) {
     return app.$auth.loggedIn ? 'default' : 'toppage'
   },

@@ -1,5 +1,9 @@
 <template>
-  <div>
+  <v-card
+    flat
+    width="300"
+    :class="cardClass"
+  >
     <v-btn
       v-show="!isShow"
       depressed
@@ -11,22 +15,15 @@
       ＋ {{ btnText }}
     </v-btn>
 
-    <v-card
-      v-show="isShow"
-      flat
-      width="300"
-      height="100%"
-    >
-      <v-form ref="form" @submit.prevent>
-        <list-form v-bind.sync="newList" @submit="createListTemplate" @cancel="cancelCreateList" />
-        <list-card-create-btn :btn-text="btnText" @create="createListTemplate" @cancel="cancelCreateList" />
-      </v-form>
-    </v-card>
-  </div>
+    <v-form v-show="isShow" ref="form" class="width-284" @submit.prevent>
+      <list-form :title.sync="title" @submit="createListTemplate" @cancel="cancelCreateList" />
+      <list-card-create-btn :btn-text="btnText" @create="createListTemplate" @cancel="cancelCreateList" />
+    </v-form>
+  </v-card>
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex'
+import { mapActions } from 'vuex'
 import ListForm from '~/components/list/Form.vue'
 import ListCardCreateBtn from '~/components/ui/ListCardCreateBtn.vue'
 
@@ -38,17 +35,13 @@ export default {
   data () {
     return {
       isShow: false,
-      newList: {
-        title: '',
-        index: this.$store.getters['list/listsLength']
-      },
+      title: '',
       btnText: 'リストを追加'
     }
   },
-  computed: mapGetters('list', ['listsLength']),
-  watch: {
-    listsLength (newLength) {
-      this.newList.index = newLength
+  computed: {
+    cardClass () {
+      return this.isShow ? 'pa-2' : ''
     }
   },
   methods: {
@@ -62,7 +55,7 @@ export default {
       }
 
       try {
-        await this.createList(this.newList)
+        await this.createList(this.title)
         this.resetCreatForm()
       } catch (error) {
         this.$handler.standardAxiosError(error)
@@ -73,7 +66,7 @@ export default {
       this.toggleIsShow()
     },
     resetCreatForm () {
-      this.newList.title = ''
+      this.title = ''
     }
   }
 }

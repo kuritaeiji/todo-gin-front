@@ -159,15 +159,19 @@ describe('actions', () => {
   })
 
   describe('createList', () => {
+    const length = 10
+    const title = 'new list'
+    const gettersStub = { listsLength: length }
+
     it('apiと通信してリストを作成する', () => {
       actions.$axios = axiosMock
-      actions.createList({ commit }, defaultLists[0])
-      expect(axiosMock.$post).toHaveBeenCalledWith('/lists', defaultLists[0])
+      actions.createList({ commit, getters: gettersStub }, title)
+      expect(axiosMock.$post).toHaveBeenCalledWith('/lists', { title, index: length })
     })
 
     it('commitする', async () => {
       actions.$axios = axiosStub
-      await actions.createList({ commit }, defaultLists[0])
+      await actions.createList({ commit, getters: gettersStub }, title)
       expect(commit).toHaveBeenCalledWith('createList', defaultLists[0])
     })
   })
