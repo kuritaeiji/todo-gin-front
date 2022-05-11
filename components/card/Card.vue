@@ -6,8 +6,9 @@
     class="ma-3 d-flex justify-space-between"
     @mouseenter="toggleIsMouseEnter"
     @mouseleave="toggleIsMouseEnter"
+    @mousedown.stop="mouseDown"
   >
-    <v-card-title class="text-body-2 font-weight-bold pa-0 ma-2">
+    <v-card-title class="text-body-2 font-weight-bold user-select-none pa-0 ma-2">
       {{ card.title }}
     </v-card-title>
 
@@ -41,12 +42,13 @@ export default {
   data () {
     return {
       isMouseEnter: false,
-      dialog: false
+      dialog: false,
+      title: this.card.title
     }
   },
   computed: {
     cardColor () {
-      return this.isMouseEnter ? 'grey lighten-2' : 'grey lighten-4'
+      return this.isMouseEnter ? 'grey lighten-2' : 'grey lighten-3'
     }
   },
   methods: {
@@ -55,6 +57,10 @@ export default {
     },
     toggleDialog () {
       this.dialog = !this.dialog
+      this.$el.style.height = '44px'
+    },
+    mouseDown (event) {
+      this.$emit('mousedown', event, this.card)
     }
   }
 }

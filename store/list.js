@@ -1,6 +1,8 @@
 // [{ id: 1, title: 'list1', cards: [{ id:1, title: "card1", listID: 1 }] }]
 // カードのlistIDはドラッグ&ドロップすると変化するので信用できない数値
 
+import { cloneDeep } from 'lodash'
+
 export const state = () => ({
   lists: []
 })
@@ -37,17 +39,29 @@ export const getters = {
   cardIndex (state) {
     // リストのindexとカードのindexを返す
     return (cardID) => {
-      let index
-      for (let i = 0; i < state.lists.length; i++) {
-        const result = state.lists[i].cards.findIndex(card => card.id === cardID)
-        if (result >= 0) {
-          index = { listIndex: i, cardIndex: result }
-          break
-        }
-      }
-      return index
+      return cardIndex(state.lists, cardID)
+    }
+  },
+  cardIndexWithDestroy (state, getters) {
+    return (cardID, destroyID) => {
+      const destroyCardIndex = getters.cardIndex(destroyID)
+      const cloneLists = cloneDeep(state.lists)
+      cloneLists[destroyCardIndex.listIndex].cards.splice(destroyCardIndex.cardIndex, 1)
+      return cardIndex(cloneLists, cardID)
     }
   }
+}
+
+export const cardIndex = (lists, cardID) => {
+  let index
+  for (let i = 0; i < lists.length; i++) {
+    const result = lists[i].cards.findIndex(card => card.id === cardID)
+    if (result >= 0) {
+      index = { listIndex: i, cardIndex: result }
+      break
+    }
+  }
+  return index
 }
 
 export const mutations = {

@@ -1,9 +1,7 @@
 <template>
   <v-card
     flat
-    min-width="300"
-    width="300"
-    class="mr-5 mb-5 flex-column cursor-pointer"
+    class="mr-5 mb-5 flex-column cursor-pointer list-card-width"
     @mousedown="mouseDown"
   >
     <div class="d-flex justify-space-between">
@@ -11,9 +9,7 @@
       <list-destroy-btn :list="list" />
     </div>
 
-    <div>
-      <slot /> <!-- カードとカードの作成フォームが入る -->
-    </div>
+    <slot /> <!-- カードとカードの作成フォームが入る -->
   </v-card>
 </template>
 

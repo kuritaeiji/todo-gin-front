@@ -45,6 +45,17 @@ describe('getters', () => {
     const result = getters.cardIndex({ lists: defaultLists })(3)
     expect(result).toEqual({ listIndex: 1, cardIndex: 0 })
   })
+
+  it('cardIndexWithDestroy', () => {
+    const gettersStub = {
+      cardIndex (cardID) {
+        return { listIndex: 0, cardIndex: 0 }
+      }
+    }
+    const result = getters.cardIndexWithDestroy({ lists: defaultLists }, gettersStub)(2, 1)
+    expect(result.listIndex).toEqual(0)
+    expect(result.cardIndex).toEqual(0)
+  })
 })
 
 describe('mutations', () => {
