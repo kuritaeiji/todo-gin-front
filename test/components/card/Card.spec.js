@@ -27,7 +27,7 @@ describe('components/Card.vue', () => {
     describe('v-card', () => {
       it('v-cardのcolorはcomputedのcardColor', () => {
         const wrapper = mountCardCard({ stubs })
-        expect(wrapper.findComponent({ name: 'v-card' }).props().color).toEqual('grey lighten-4')
+        expect(wrapper.findComponent({ name: 'v-card' }).props().color).toEqual('grey lighten-3')
       })
 
       it('mouseenterイベントが発火するとtoggleIsMouseEnterメソッドを呼び出す', () => {
@@ -102,7 +102,7 @@ describe('components/Card.vue', () => {
     describe('computed', () => {
       it('cardColor', () => {
         expect(CardCard.computed.cardColor.call({ isMouseEnter: true })).toEqual('grey lighten-2')
-        expect(CardCard.computed.cardColor.call({ isMouseEnter: false })).toEqual('grey lighten-4')
+        expect(CardCard.computed.cardColor.call({ isMouseEnter: false })).toEqual('grey lighten-3')
       })
     })
 
