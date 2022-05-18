@@ -10,13 +10,26 @@
   height: 100%;
 }
 
-.drag-element-none {
-  display: none !important;
-}
-
 .user-select-none {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+.width-300 {
+  width: 300px;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.width-284 {
+  width: 284px;
+}
+
+.list-card-width {
+  width: 300px;
+  min-width: 300px;
 }

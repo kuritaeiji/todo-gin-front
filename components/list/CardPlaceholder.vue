@@ -5,7 +5,7 @@
     min-width="300"
     color="grey"
     :height="height"
-    class="mr-5 mb-5 list-card-placeholder"
+    class="mr-5 mb-5"
   />
 </template>
 
