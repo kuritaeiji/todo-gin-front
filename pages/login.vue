@@ -6,11 +6,16 @@
         @submit="login"
       />
     </v-form>
+
+    <ui-google-btn login />
   </before-logged-in-form>
 </template>
 
 <script>
+import UiGoogleBtn from '~/components/ui/GoogleBtn.vue'
+
 export default {
+  components: { UiGoogleBtn },
   layout: 'beforeLoggedIn',
   middleware: 'guest',
   data () {

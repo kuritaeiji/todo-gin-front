@@ -2,6 +2,7 @@ import Vuetify from 'vuetify'
 import { mount } from '@vue/test-utils'
 import page from '~/pages/login.vue'
 import localVue from '~/test/localVue'
+import UiGoogleBtn from '~/components/ui/GoogleBtn.vue'
 
 describe('pages/login.vue', () => {
   let vuetify
@@ -28,6 +29,11 @@ describe('pages/login.vue', () => {
       })
       wrapper.find('user-form-stub').vm.$emit('submit')
       expect(mock).toHaveBeenCalled()
+    })
+
+    it('ui-google-btnコンポーネントにloginProps=trueを渡す', () => {
+      const wrapper = mountPage()
+      expect(wrapper.findComponent(UiGoogleBtn).props().login).toEqual(true)
     })
   })
 

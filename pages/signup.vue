@@ -7,14 +7,18 @@
         @submit="createUser"
       />
     </v-form>
+
+    <ui-google-btn />
   </before-logged-in-form>
 </template>
 
 <script>
 import { mapActions } from 'vuex'
 import { isEmailClientError, isUniqueUserError, isValidationError } from '~/errors'
+import UiGoogleBtn from '~/components/ui/GoogleBtn.vue'
 
 export default {
+  components: { UiGoogleBtn },
   layout: 'beforeLoggedIn',
   middleware: 'guest',
   data () {
