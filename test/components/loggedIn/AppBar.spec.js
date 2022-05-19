@@ -62,15 +62,17 @@ describe('component/LoggedInAppBar.vue', () => {
     describe('methods', () => {
       it('logoutメソッド', () => {
         const mock = jest.fn()
+        const $route = { name: 'index' }
         const wrapper = mountAppBar({
           mocks: {
             $auth: {
               logout: mock
-            }
+            },
+            $route
           }
         })
         wrapper.vm.logout()
-        expect(mock).toHaveBeenCalledWith(wrapper.vm)
+        expect(mock).toHaveBeenCalledWith(wrapper.vm, $route.name)
       })
 
       describe('withdrawメソッド', () => {
@@ -87,11 +89,12 @@ describe('component/LoggedInAppBar.vue', () => {
           it('ログアウトする', async () => {
             const $axios = { $delete: () => { return new Promise((resolve) => { resolve() }) } }
             const $auth = { logout: jest.fn() }
+            const $route = { name: 'index' }
             const wrapper = mountAppBar({
-              mocks: { $axios, $auth }
+              mocks: { $axios, $auth, $route }
             })
             await wrapper.vm.withdraw()
-            expect($auth.logout).toHaveBeenCalled()
+            expect($auth.logout).toHaveBeenCalledWith(wrapper.vm, $route.name, 'flash.withdraw')
           })
         })
 

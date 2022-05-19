@@ -1,7 +1,7 @@
 import { isRecordNotFoundError, isPasswordAuthenticationError, isNotLoggedInError, isNotLoggedInWithJwtIsExpiredError, isGuestError } from '~/errors'
 
 export class Auth {
-  constructor ({ $axios, store, app, redirect, route }) {
+  constructor ({ $axios, store, app, redirect, route, query }) {
     this.$axios = $axios
     this.store = store
     this.app = app
@@ -31,13 +31,23 @@ export class Auth {
     }
   }
 
-  logout (vue, flashText = 'flash.logout') {
-    // this.storage.removeItem(this.accessTokenKey)
-    // this.store.dispatch('auth/setLoggedIn', false)
+  async googleLogin (query) {
+    try {
+      const response = await this.$axios.$post('/google/login', {
+        state: query.state,
+        code: query.code
+      })
+      this._loginResolve(response)
+    } catch (error) {
+      this.app.$handler.standardAxiosError(error)
+    }
+  }
+
+  logout (vue, routeName, flashText = 'flash.logout') {
     this._coreLogout()
     this.store.dispatch('flash/setFlash', { color: 'info', text: this.app.i18n.t(flashText) })
 
-    if (this.route.name === 'index') {
+    if (routeName === 'index') {
       vue.$nuxt.setLayout('toppage')
       this.store.dispatch('flash/countUpFlashBecauseNotRedirect')
       return null
@@ -100,6 +110,7 @@ export class Auth {
   _loginResolve (response) {
     this.storage.setItem(this.accessTokenKey, this.tokenType + response.token)
     this.store.dispatch('auth/setLoggedIn', true)
+    this.store.dispatch('flash/setFlash', { color: 'info', text: this.app.i18n.t('flash.login') })
     this.redirect({ name: 'index' })
   }
 

@@ -19,12 +19,12 @@ export default {
   methods: {
     ...mapActions('flash', ['setFlash']),
     logout () {
-      this.$auth.logout(this)
+      this.$auth.logout(this, this.$route.name)
     },
     async withdraw () {
       try {
         await this.$axios.$delete('/users')
-        this.$auth.logout(this, 'flash.withdraw')
+        this.$auth.logout(this, this.$route.name, 'flash.withdraw')
       } catch (error) {
         this.$handler.standardAxiosError(error)
       }
