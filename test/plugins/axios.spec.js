@@ -26,7 +26,8 @@ describe('plugins/axios', () => {
   })
 
   it('axiosのエラー発生時に、backendのauthミドルウェアのエラー処理をするようauthプラグインに処理を移譲する', () => {
-    axiosPlugin({ app, $axios })
-    expect(app.$auth.axiosErrorInterceptor).toHaveBeenCalledWith(error)
+    const route = 'route'
+    axiosPlugin({ app, $axios, route })
+    expect(app.$auth.axiosErrorInterceptor).toHaveBeenCalledWith(error, route)
   })
 })

@@ -307,6 +307,7 @@ describe('plugins/Auth', () => {
 
   describe('axiosErrorInterceptor', () => {
     const app = { i18n: { t: key => key } }
+    const route = { name: 'index' }
     let store
     let redirect
     let auth
@@ -323,17 +324,17 @@ describe('plugins/Auth', () => {
       const error = { response: { status: notLoggedInError.status, data: { content: notLoggedInError.content } } }
 
       it('localstorageのtokenを削除する', () => {
-        auth.axiosErrorInterceptor(error)
+        auth.axiosErrorInterceptor(error, route)
         expect(auth.storage.removeItem).toHaveBeenCalledWith(auth.accessTokenKey)
       })
 
       it('authストアのloggedInをfalseにする', () => {
-        auth.axiosErrorInterceptor(error)
+        auth.axiosErrorInterceptor(error, route)
         expect(auth.store.dispatch).toHaveBeenNthCalledWith(1, 'auth/setLoggedIn', false)
       })
 
       it('ログインパスにリダイレクトする', () => {
-        auth.axiosErrorInterceptor(error)
+        auth.axiosErrorInterceptor(error, route)
         expect(redirect).toHaveBeenCalledWith({ name: 'login' })
       })
 
@@ -341,7 +342,7 @@ describe('plugins/Auth', () => {
         it('ログインするようにという、flashメッセージを作成する', () => {
           error.response.status = notLoggedInError.status
           error.response.data.content = notLoggedInError.content
-          auth.axiosErrorInterceptor(error)
+          auth.axiosErrorInterceptor(error, route)
           expect(store.dispatch).toHaveBeenNthCalledWith(2, 'flash/setFlash', { color: 'red', text: 'flash.authMiddleware' })
         })
       })
@@ -350,7 +351,7 @@ describe('plugins/Auth', () => {
         it('tokenの有効期限が切れているという、flashメッセージを作成する', () => {
           error.response.status = notLoggedInWithJwtIsExpiredError.status
           error.response.data.content = notLoggedInWithJwtIsExpiredError.content
-          auth.axiosErrorInterceptor(error)
+          auth.axiosErrorInterceptor(error, route)
           expect(store.dispatch).toHaveBeenNthCalledWith(2, 'flash/setFlash', { color: 'red', text: 'flash.notLoggedInWithJwtIsExpiredError' })
         })
       })
@@ -359,10 +360,9 @@ describe('plugins/Auth', () => {
     describe('axiosからguestエラーが返る場合', () => {
       it('guestMiddlewareメソッドに処理を任せる', () => {
         auth.guestMiddleware = jest.fn()
-        auth.route = 'route'
         const error = { response: { status: guestError.status, data: { content: guestError.content } } }
-        auth.axiosErrorInterceptor(error)
-        expect(auth.guestMiddleware).toHaveBeenCalledWith({ from: auth.route })
+        auth.axiosErrorInterceptor(error, route)
+        expect(auth.guestMiddleware).toHaveBeenCalledWith({ from: route })
       })
     })
   })

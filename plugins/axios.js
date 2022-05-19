@@ -1,4 +1,4 @@
-export default ({ app, $axios, isDev }) => {
+export default ({ app, $axios, isDev, route }) => {
   $axios.onRequest((config) => {
     if (isDev) {
       console.dir(config)
@@ -19,7 +19,7 @@ export default ({ app, $axios, isDev }) => {
       console.dir(error)
     }
 
-    // backendのauthミドルウェアへの対応s
-    app.$auth.axiosErrorInterceptor(error)
+    // backendのauthミドルウェアへの対応
+    app.$auth.axiosErrorInterceptor(error, route)
   })
 }

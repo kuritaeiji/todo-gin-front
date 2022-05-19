@@ -1,12 +1,11 @@
 import { isRecordNotFoundError, isPasswordAuthenticationError, isNotLoggedInError, isNotLoggedInWithJwtIsExpiredError, isGuestError } from '~/errors'
 
 export class Auth {
-  constructor ({ $axios, store, app, redirect, route, query }) {
+  constructor ({ $axios, store, app, redirect }) {
     this.$axios = $axios
     this.store = store
     this.app = app
     this.redirect = redirect
-    this.route = route
 
     this.storage = localStorage
     this.accessTokenKey = 'todoGinAccessToken'
@@ -82,7 +81,7 @@ export class Auth {
     }
   }
 
-  axiosErrorInterceptor (error) {
+  axiosErrorInterceptor (error, route) {
     // backendのauthミドルウェアの対応
     if (isNotLoggedInWithJwtIsExpiredError(error) || isNotLoggedInError(error)) {
       this._coreLogout()
@@ -93,7 +92,7 @@ export class Auth {
 
     // backendのguestミドルウェアの対応
     if (isGuestError(error)) {
-      this.guestMiddleware({ from: this.route })
+      this.guestMiddleware({ from: route })
     }
   }
 
