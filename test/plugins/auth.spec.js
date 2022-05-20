@@ -14,19 +14,21 @@ describe('plugins/Auth', () => {
       expect($axios.$post).toHaveBeenCalledWith('/login', authParams)
     })
 
-    it('ログインに成功するとlocalstorageにBearerトークンを保存し、authstoreのloggedInステートをtrueにし、indexパスにリダイレクトする', async () => {
+    it('ログインに成功するとlocalstorageにBearerトークンを保存し、authstoreのloggedInステートをtrueにし、flashメッセージを作成し、indexパスにリダイレクトする', async () => {
       const response = { token: 'token' }
       const $axios = {
         $post () { return new Promise(resolve => resolve(response)) }
       }
       const store = { dispatch: jest.fn() }
       const redirect = jest.fn()
-      const auth = new Auth({ $axios, store, redirect })
+      const app = { i18n: { t (key) { return key } } }
+      const auth = new Auth({ $axios, store, redirect, app })
       auth.storage = { setItem: jest.fn() }
 
       await auth.login(authParams)
       expect(auth.storage.setItem).toHaveBeenCalledWith(auth.accessTokenKey, auth.tokenType + response.token)
-      expect(store.dispatch).toHaveBeenCalledWith('auth/setLoggedIn', true)
+      expect(store.dispatch.mock.calls[0]).toEqual(['auth/setLoggedIn', true])
+      expect(store.dispatch.mock.calls[1]).toEqual(['flash/setFlash', { color: 'info', text: 'flash.login' }])
       expect(redirect).toHaveBeenCalledWith({ name: 'index' })
     })
 
@@ -63,6 +65,38 @@ describe('plugins/Auth', () => {
     })
   })
 
+  describe('googleLoginメソッド', () => {
+    const query = { state: 'state', code: 'code' }
+
+    it('/google/loginパスにpostする', () => {
+      const $axios = { $post: jest.fn() }
+      const auth = new Auth({ $axios })
+      auth.googleLogin(query)
+
+      expect($axios.$post).toHaveBeenCalledWith('/google/login', { state: query.state, code: query.code })
+    })
+
+    it('成功する場合_loginResolveメソッドをよびだす', async () => {
+      const response = 'response'
+      const $axios = { $post: () => Promise.resolve(response) }
+      const auth = new Auth({ $axios })
+      auth._loginResolve = jest.fn()
+      await auth.googleLogin(query)
+
+      expect(auth._loginResolve).toHaveBeenCalledWith(response)
+    })
+
+    it('失敗する場合app.$handler.standardAxiosErrorメソッドをよびだす', async () => {
+      const error = 'error'
+      const $axios = { $post: () => Promise.reject(error) }
+      const app = { $handler: { standardAxiosError: jest.fn() } }
+      const auth = new Auth({ $axios, app })
+      await auth.googleLogin(query)
+
+      expect(app.$handler.standardAxiosError).toHaveBeenCalledWith(error)
+    })
+  })
+
   describe('logoutメソッド', () => {
     const app = { i18n: { t: key => key } }
     let storage
@@ -81,64 +115,64 @@ describe('plugins/Auth', () => {
     })
 
     describe('遷移元のpathがindexでない場合', () => {
-      const route = { name: 'not-index' }
+      const routeName = 'not-index'
       let auth
       beforeEach(() => {
-        auth = new Auth({ store, app, redirect, route })
+        auth = new Auth({ store, app, redirect })
         auth.storage = storage
       })
 
       it('localstorageのjwtを削除', () => {
-        auth.logout(vue)
+        auth.logout(vue, routeName)
         expect(auth.storage.removeItem).toHaveBeenCalledWith(auth.accessTokenKey)
       })
 
       it('storeのloggedInをfalseにする', () => {
-        auth.logout(vue)
+        auth.logout(vue, routeName)
         expect(auth.store.dispatch).toHaveBeenNthCalledWith(1, 'auth/setLoggedIn', false)
       })
 
       it('flashMessageを作成する', () => {
-        auth.logout(vue)
+        auth.logout(vue, routeName)
         expect(auth.store.dispatch).toHaveBeenNthCalledWith(2, 'flash/setFlash', { color: 'info', text: 'flash.logout' })
       })
 
       it('indexパスにリダイレクトする', () => {
-        auth.logout(vue)
+        auth.logout(vue, routeName)
         expect(auth.redirect).toHaveBeenCalledWith({ name: 'index' })
       })
 
       it('レイアウトをtoppageにしない', () => {
-        auth.logout(vue)
+        auth.logout(vue, routeName)
         expect(vue.$nuxt.setLayout).not.toHaveBeenCalled()
       })
 
       it('flashメッセージのtransitionカウントを+しない', () => {
-        auth.logout(vue)
+        auth.logout(vue, routeName)
         expect(auth.store.dispatch).toHaveBeenCalledTimes(2)
       })
     })
 
     describe('遷移元のpathがindexである場合', () => {
-      const route = { name: 'index' }
+      const routeName = 'index'
       let auth
       beforeEach(() => {
-        auth = new Auth({ store, app, redirect, route })
+        auth = new Auth({ store, app, redirect })
         auth.storage = storage
       })
 
       it('レイアウトをtoppageにする', () => {
-        auth.logout(vue)
+        auth.logout(vue, routeName)
         expect(vue.$nuxt.setLayout).toHaveBeenCalledWith('toppage')
       })
 
       it('flashメッセージのtransitionCountを+する', () => {
-        auth.logout(vue)
+        auth.logout(vue, routeName)
         expect(auth.store.dispatch).toHaveBeenNthCalledWith(3, 'flash/countUpFlashBecauseNotRedirect')
       })
 
       it('indexパスにリダイレクトしない', () => {
-        auth.logout(vue)
+        auth.logout(vue, routeName)
         expect(auth.redirect).not.toHaveBeenCalled()
       })
     })
@@ -273,6 +307,7 @@ describe('plugins/Auth', () => {
 
   describe('axiosErrorInterceptor', () => {
     const app = { i18n: { t: key => key } }
+    const route = { name: 'index' }
     let store
     let redirect
     let auth
@@ -289,17 +324,17 @@ describe('plugins/Auth', () => {
       const error = { response: { status: notLoggedInError.status, data: { content: notLoggedInError.content } } }
 
       it('localstorageのtokenを削除する', () => {
-        auth.axiosErrorInterceptor(error)
+        auth.axiosErrorInterceptor(error, route)
         expect(auth.storage.removeItem).toHaveBeenCalledWith(auth.accessTokenKey)
       })
 
       it('authストアのloggedInをfalseにする', () => {
-        auth.axiosErrorInterceptor(error)
+        auth.axiosErrorInterceptor(error, route)
         expect(auth.store.dispatch).toHaveBeenNthCalledWith(1, 'auth/setLoggedIn', false)
       })
 
       it('ログインパスにリダイレクトする', () => {
-        auth.axiosErrorInterceptor(error)
+        auth.axiosErrorInterceptor(error, route)
         expect(redirect).toHaveBeenCalledWith({ name: 'login' })
       })
 
@@ -307,7 +342,7 @@ describe('plugins/Auth', () => {
         it('ログインするようにという、flashメッセージを作成する', () => {
           error.response.status = notLoggedInError.status
           error.response.data.content = notLoggedInError.content
-          auth.axiosErrorInterceptor(error)
+          auth.axiosErrorInterceptor(error, route)
           expect(store.dispatch).toHaveBeenNthCalledWith(2, 'flash/setFlash', { color: 'red', text: 'flash.authMiddleware' })
         })
       })
@@ -316,7 +351,7 @@ describe('plugins/Auth', () => {
         it('tokenの有効期限が切れているという、flashメッセージを作成する', () => {
           error.response.status = notLoggedInWithJwtIsExpiredError.status
           error.response.data.content = notLoggedInWithJwtIsExpiredError.content
-          auth.axiosErrorInterceptor(error)
+          auth.axiosErrorInterceptor(error, route)
           expect(store.dispatch).toHaveBeenNthCalledWith(2, 'flash/setFlash', { color: 'red', text: 'flash.notLoggedInWithJwtIsExpiredError' })
         })
       })
@@ -325,10 +360,9 @@ describe('plugins/Auth', () => {
     describe('axiosからguestエラーが返る場合', () => {
       it('guestMiddlewareメソッドに処理を任せる', () => {
         auth.guestMiddleware = jest.fn()
-        auth.route = 'route'
         const error = { response: { status: guestError.status, data: { content: guestError.content } } }
-        auth.axiosErrorInterceptor(error)
-        expect(auth.guestMiddleware).toHaveBeenCalledWith({ from: auth.route })
+        auth.axiosErrorInterceptor(error, route)
+        expect(auth.guestMiddleware).toHaveBeenCalledWith({ from: route })
       })
     })
   })

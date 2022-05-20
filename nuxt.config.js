@@ -63,7 +63,8 @@ export default {
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
     // Workaround to avoid enforcing hard-coded localhost:3000: https://github.com/nuxt-community/axios-module/issues/308
-    baseURL: process.env.NODE_ENV === 'production' ? 'https://todo-gin-back.herokuapp.com/api' : 'http://localhost:8080/api'
+    baseURL: process.env.NODE_ENV === 'production' ? 'https://todo-gin-back.herokuapp.com/api' : 'http://localhost:8080/api',
+    credentials: true
   },
 
   i18n: {

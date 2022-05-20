@@ -28,6 +28,7 @@
   "flash": {
     "authMiddleware": "ログインして下さい",
     "guestMiddleware": "既にログイン済みです",
+    "login": "ログインしました",
     "logout": "ログアウトしました",
     "activationEmail": "アカウント有効化メールを送信しました",
     "activationEmailError": "有効化メールを送信できませんでした",
