@@ -1,7 +1,7 @@
 import axiosPlugin from '~/plugins/axios'
 
 describe('plugins/axios', () => {
-  const config = 'config'
+  const config = { headers: {} }
   const response = 'response'
   const error = 'error'
   const $axios = {
@@ -23,6 +23,11 @@ describe('plugins/axios', () => {
   it('axiosのリクエスト時に、headerにjwtを追加するようauthプラグインに処理を移譲する', () => {
     axiosPlugin({ app, $axios })
     expect(app.$auth.axiosRequestInterceptor).toHaveBeenCalledWith(config)
+  })
+
+  it('axiosのリクエスト時に、X-Requested-With: XMLHttpRequestヘッダーを付与する', () => {
+    axiosPlugin({ app, $axios })
+    expect(config.headers['X-Requested-With']).toEqual('XMLHttpRequest')
   })
 
   it('axiosのエラー発生時に、backendのauthミドルウェアのエラー処理をするようauthプラグインに処理を移譲する', () => {

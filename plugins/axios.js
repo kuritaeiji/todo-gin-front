@@ -6,6 +6,8 @@ export default ({ app, $axios, isDev, route }) => {
 
     // headerにtoken付与
     app.$auth.axiosRequestInterceptor(config)
+    // csrf対策のためにカスタムヘッダーを付与する”
+    config.headers['X-Requested-With'] = 'XMLHttpRequest'
   })
 
   $axios.onResponse((response) => {
