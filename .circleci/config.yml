@@ -19,6 +19,7 @@ jobs:
           key: yarn-packages-{{ checksum "yarn.lock" }}
       - run: yarn test
       - run: yarn generate
+      # deployJobになるとyarn generateで作成されたファイル群が消えるので、残しておくためにpersist_to_workspaceを使う
       - persist_to_workspace:
           root: ~/project
           paths:

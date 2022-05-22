@@ -11,6 +11,7 @@ export class Auth {
     this.accessTokenKey = 'todoGinAccessToken'
     this.tokenType = 'Bearer '
     this.tokenHeader = 'Authorization'
+    this.googleStateKey = 'state'
   }
 
   get loggedIn () {
@@ -30,11 +31,22 @@ export class Auth {
     }
   }
 
+  async requestGoogleAuthEndpoint () {
+    try {
+      const response = await this.$axios.$get('/google')
+      this.storage.setItem(this.googleStateKey, response.state)
+      window.location.assign(response.url)
+    } catch (error) {
+      this.app.$handler.standardAxiosError(error)
+    }
+  }
+
   async googleLogin (query) {
     try {
       const response = await this.$axios.$post('/google/login', {
         state: query.state,
-        code: query.code
+        code: query.code,
+        local_storage_state: this.storage.getItem(this.googleStateKey)
       })
       this._loginResolve(response)
     } catch (error) {

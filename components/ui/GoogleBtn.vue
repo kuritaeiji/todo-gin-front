@@ -30,13 +30,8 @@ export default {
     }
   },
   methods: {
-    async requestAuthEndpoint () {
-      try {
-        const response = await this.$axios.$get('/google')
-        window.location.assign(response.url)
-      } catch (error) {
-        this.$handler.standardAxiosError(error)
-      }
+    requestAuthEndpoint () {
+      this.$auth.requestGoogleAuthEndpoint()
     }
   }
 }
