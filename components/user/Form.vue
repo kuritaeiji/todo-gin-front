@@ -8,7 +8,7 @@
       :label="$t('model.user.email')"
       :rules="rules.email"
       :error-messages="errorMessages"
-      @keyup.enter="submit"
+      @keypress.enter="submit"
       @blur="isUniqueUser"
     />
     <v-text-field
@@ -20,7 +20,7 @@
       :append-icon="passwordField.icon"
       :rules="rules.password"
       @click:append="toggleIsShowPassword"
-      @keyup.enter="submit"
+      @keypress.enter="submit"
     />
     <div v-if="validation" class="text-caption grey--text pl-3">
       {{ $t('form.annotation.user.password') }}

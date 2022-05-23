@@ -10,7 +10,7 @@
     placeholder="カードのタイトルを入力"
     :rules="rules"
     class="font-weight-bold"
-    @keyup.enter="submit"
+    @keypress.enter="submit"
     @keyup.esc="cancel"
   />
 </template>

@@ -23,7 +23,7 @@ describe('components/CardForm.vue', () => {
   describe('template', () => {
     it('エンターキーを押すとsubmitメソッドを呼び出す', () => {
       const wrapper = mountCardForm({ methods: { submit: mock } })
-      wrapper.find('textarea').trigger('keyup.enter')
+      wrapper.find('textarea').trigger('keypress.enter')
       expect(mock).toHaveBeenCalled()
     })
 

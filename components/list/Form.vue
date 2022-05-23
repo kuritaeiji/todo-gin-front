@@ -8,7 +8,7 @@
     validate-on-blur
     class="font-weight-bold"
     :rules="rules"
-    @keyup.enter="submit"
+    @keypress.enter="submit"
     @keyup.esc="cancel"
   />
 </template>

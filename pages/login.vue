@@ -9,13 +9,21 @@
 
     <ui-google-btn login />
 
-    <div class="mt-3 text-center">
-      <div class="font-weight-bold">
+    <v-card
+      flat
+      tile
+      color="grey lighten-4"
+      class="mt-3"
+    >
+      <v-card-title class="py-1">
         テストユーザー
-      </div>
-      メールアドレス: user@example.com<br>
-      パスワード: Password1010
-    </div>
+      </v-card-title>
+
+      <v-card-text>
+        メールアドレス: user@example.com<br>
+        パスワード: Password1010
+      </v-card-text>
+    </v-card>
   </before-logged-in-form>
 </template>
 

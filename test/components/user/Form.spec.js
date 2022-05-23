@@ -45,7 +45,7 @@ describe('components/UserForm.vue', () => {
       const wrapper = mountUserForm({
         methods: { submit: mock }
       })
-      wrapper.find('input[type="email"]').trigger('keyup.enter')
+      wrapper.find('input[type="email"]').trigger('keypress.enter')
       expect(mock).toHaveBeenCalled()
     })
 
@@ -64,7 +64,7 @@ describe('components/UserForm.vue', () => {
       const wrapper = mountUserForm({
         methods: { submit: mock }
       })
-      wrapper.find('input[type="password"]').trigger('keyup.enter')
+      wrapper.find('input[type="password"]').trigger('keypress.enter')
       expect(mock).toHaveBeenCalled()
     })
 

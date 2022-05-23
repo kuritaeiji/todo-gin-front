@@ -31,7 +31,7 @@ describe('components/ListForm.vue', () => {
 
     it('text-field上でエンターキーを押すとsubmitメソッドを呼び出す', () => {
       const wrapper = mountListForm({ methods: { submit: mock } })
-      wrapper.find('input[type="text"]').trigger('keyup.enter')
+      wrapper.find('input[type="text"]').trigger('keypress.enter')
       expect(mock).toHaveBeenCalled()
     })
 
